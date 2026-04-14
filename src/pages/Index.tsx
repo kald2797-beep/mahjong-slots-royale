@@ -37,12 +37,12 @@ const Index = () => {
                   px-2 py-3 sm:px-4 sm:py-4 max-w-md mx-auto relative overflow-hidden
                   ${showShake ? 'screen-shake' : ''}`}
     >
-      {/* Background image */}
+      {/* Background image - full bleed */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 w-screen h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${bgTemple})` }}
       />
-      <div className="absolute inset-0 bg-background/40" />
+      <div className="fixed inset-0 w-screen h-screen bg-black/30" />
 
       {/* Top bar */}
       <div className="w-full relative z-10">
