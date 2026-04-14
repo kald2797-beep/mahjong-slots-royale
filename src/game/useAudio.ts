@@ -58,44 +58,46 @@ export function useAudio() {
       }
 
       if (sound === 'reelDrop') {
-        // Heavy bass slam — deep thud for each column hitting
-        // Sub bass impact
-        const sub = ctx.createOscillator();
-        const subGain = ctx.createGain();
-        sub.type = 'sine';
-        sub.frequency.setValueAtTime(55, now);
-        sub.frequency.exponentialRampToValueAtTime(30, now + 0.35);
-        subGain.gain.setValueAtTime(0.25, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        sub.connect(subGain).connect(ctx.destination);
-        sub.start(now);
-        sub.stop(now + 0.45);
+        // 5 rows landing one by one — ตึก ตึก ตึก ตึก ตึก
+        const rowCount = 5;
+        for (let i = 0; i < rowCount; i++) {
+          const t = now + i * 0.09; // tight spacing for rapid succession
 
-        // Chunky mid slam
-        const mid = ctx.createOscillator();
-        const midGain = ctx.createGain();
-        mid.type = 'square';
-        mid.frequency.setValueAtTime(80, now);
-        mid.frequency.exponentialRampToValueAtTime(40, now + 0.2);
-        midGain.gain.setValueAtTime(0.1, now);
-        midGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        mid.connect(midGain).connect(ctx.destination);
-        mid.start(now);
-        mid.stop(now + 0.3);
+          // Deep bass thud — the "ตึก"
+          const bass = ctx.createOscillator();
+          const bassGain = ctx.createGain();
+          bass.type = 'sine';
+          bass.frequency.setValueAtTime(65, t);
+          bass.frequency.exponentialRampToValueAtTime(28, t + 0.1);
+          bassGain.gain.setValueAtTime(0.22, t);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          bass.connect(bassGain).connect(ctx.destination);
+          bass.start(t);
+          bass.stop(t + 0.15);
 
-        // Heavy stone tiles landing — staggered thuds
-        [0.08, 0.16, 0.24, 0.32, 0.38].forEach((t, i) => {
-          const thud = ctx.createOscillator();
-          const thudGain = ctx.createGain();
-          thud.type = 'sine';
-          thud.frequency.setValueAtTime(70 - i * 5, now + t);
-          thud.frequency.exponentialRampToValueAtTime(25, now + t + 0.12);
-          thudGain.gain.setValueAtTime(0.15 - i * 0.02, now + t);
-          thudGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
-          thud.connect(thudGain).connect(ctx.destination);
-          thud.start(now + t);
-          thud.stop(now + t + 0.2);
-        });
+          // Percussive click attack on top
+          const click = ctx.createOscillator();
+          const clickGain = ctx.createGain();
+          click.type = 'square';
+          click.frequency.setValueAtTime(200 - i * 15, t);
+          click.frequency.exponentialRampToValueAtTime(50, t + 0.04);
+          clickGain.gain.setValueAtTime(0.1, t);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          click.connect(clickGain).connect(ctx.destination);
+          click.start(t);
+          click.stop(t + 0.08);
+
+          // Sub rumble tail
+          const sub = ctx.createOscillator();
+          const subGain = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(35, t + 0.02);
+          subGain.gain.setValueAtTime(0.12, t + 0.02);
+          subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+          sub.connect(subGain).connect(ctx.destination);
+          sub.start(t + 0.02);
+          sub.stop(t + 0.12);
+        }
       }
 
       if (sound === 'cascade') {
