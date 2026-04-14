@@ -60,6 +60,7 @@ const Index = () => {
             grid={state.grid}
             winClusters={state.winClusters}
             phase={state.phase}
+            cascadeCount={state.cascadeCount}
           />
         </div>
         <BigWinOverlay amount={state.totalWin} visible={showBigWin} />
