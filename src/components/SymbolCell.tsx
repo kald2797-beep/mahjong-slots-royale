@@ -12,6 +12,7 @@ interface SymbolCellProps {
 export function SymbolCell({ cell, isWinning, isExploding, colIndex, rowIndex }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
+  // Reel-style drop: come from far above, stagger by row
   return (
     <motion.div
       key={cell.key}
@@ -33,17 +34,14 @@ export function SymbolCell({ cell, isWinning, isExploding, colIndex, rowIndex }:
         scale: { duration: 0.2 },
       }}
       className={`
-        symbol-cell rounded-lg flex items-center justify-center aspect-square overflow-hidden p-0.5
+        symbol-cell rounded-lg flex items-center justify-center aspect-square
         ${isWinning && !isExploding ? 'winning pulse-glow' : ''}
         ${isExploding && isWinning ? 'explode' : ''}
       `}
     >
-      <img
-        src={symbol.image}
-        alt={symbol.name}
-        className="w-full h-full object-contain select-none pointer-events-none"
-        draggable={false}
-      />
+      <span className="text-2xl sm:text-3xl md:text-4xl select-none" role="img" aria-label={symbol.name}>
+        {symbol.emoji}
+      </span>
     </motion.div>
   );
 }
