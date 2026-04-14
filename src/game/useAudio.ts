@@ -31,72 +31,85 @@ export function useAudio() {
       const now = ctx.currentTime;
 
       if (sound === 'spin') {
-        // Slot machine lever pull — quick percussive click + sweep
-        // Click
-        const clickOsc = ctx.createOscillator();
-        const clickGain = ctx.createGain();
-        clickOsc.type = 'square';
-        clickOsc.frequency.setValueAtTime(1200, now);
-        clickOsc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
-        clickGain.gain.setValueAtTime(0.06, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-        clickOsc.connect(clickGain).connect(ctx.destination);
-        clickOsc.start(now);
-        clickOsc.stop(now + 0.1);
+        // Warm golden shimmer — soft bell-like tone
+        const bell = ctx.createOscillator();
+        const bellGain = ctx.createGain();
+        bell.type = 'sine';
+        bell.frequency.setValueAtTime(880, now);
+        bell.frequency.exponentialRampToValueAtTime(440, now + 0.35);
+        bellGain.gain.setValueAtTime(0.08, now);
+        bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        bell.connect(bellGain).connect(ctx.destination);
+        bell.start(now);
+        bell.stop(now + 0.45);
 
-        // Soft rolling whoosh
-        const noise = ctx.createOscillator();
-        const noiseGain = ctx.createGain();
-        noise.type = 'sawtooth';
-        noise.frequency.setValueAtTime(400, now + 0.05);
-        noise.frequency.linearRampToValueAtTime(150, now + 0.3);
-        noiseGain.gain.setValueAtTime(0.03, now + 0.05);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        noise.connect(noiseGain).connect(ctx.destination);
-        noise.start(now + 0.05);
-        noise.stop(now + 0.35);
+        // Warm harmonic
+        const warm = ctx.createOscillator();
+        const warmGain = ctx.createGain();
+        warm.type = 'triangle';
+        warm.frequency.setValueAtTime(660, now);
+        warm.frequency.exponentialRampToValueAtTime(330, now + 0.3);
+        warmGain.gain.setValueAtTime(0.05, now);
+        warmGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        warm.connect(warmGain).connect(ctx.destination);
+        warm.start(now);
+        warm.stop(now + 0.4);
+
+        // Soft golden sweep
+        const sweep = ctx.createOscillator();
+        const sweepGain = ctx.createGain();
+        sweep.type = 'sine';
+        sweep.frequency.setValueAtTime(1320, now);
+        sweep.frequency.exponentialRampToValueAtTime(660, now + 0.25);
+        sweepGain.gain.setValueAtTime(0.03, now);
+        sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        sweep.connect(sweepGain).connect(ctx.destination);
+        sweep.start(now);
+        sweep.stop(now + 0.35);
       }
 
       if (sound === 'reelDrop') {
-        // 5 rows landing one by one — ตึก ตึก ตึก ตึก ตึก
+        // Synced to SymbolCell spring animation:
+        // Each row delay = rowIndex * 0.07, spring settle ~0.28s
+        // So row i lands at approximately i * 0.07 + 0.28
         const rowCount = 5;
         for (let i = 0; i < rowCount; i++) {
-          const t = now + i * 0.09; // tight spacing for rapid succession
+          const landTime = now + i * 0.07 + 0.28;
 
-          // Deep bass thud — the "ตึก"
+          // Deep bass thud — ตึก
           const bass = ctx.createOscillator();
           const bassGain = ctx.createGain();
           bass.type = 'sine';
-          bass.frequency.setValueAtTime(65, t);
-          bass.frequency.exponentialRampToValueAtTime(28, t + 0.1);
-          bassGain.gain.setValueAtTime(0.22, t);
-          bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          bass.frequency.setValueAtTime(60, landTime);
+          bass.frequency.exponentialRampToValueAtTime(25, landTime + 0.1);
+          bassGain.gain.setValueAtTime(0.22, landTime);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, landTime + 0.13);
           bass.connect(bassGain).connect(ctx.destination);
-          bass.start(t);
-          bass.stop(t + 0.15);
+          bass.start(landTime);
+          bass.stop(landTime + 0.16);
 
-          // Percussive click attack on top
+          // Sharp attack snap
           const click = ctx.createOscillator();
           const clickGain = ctx.createGain();
           click.type = 'square';
-          click.frequency.setValueAtTime(200 - i * 15, t);
-          click.frequency.exponentialRampToValueAtTime(50, t + 0.04);
-          clickGain.gain.setValueAtTime(0.1, t);
-          clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          click.frequency.setValueAtTime(180 - i * 10, landTime);
+          click.frequency.exponentialRampToValueAtTime(40, landTime + 0.035);
+          clickGain.gain.setValueAtTime(0.09, landTime);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, landTime + 0.05);
           click.connect(clickGain).connect(ctx.destination);
-          click.start(t);
-          click.stop(t + 0.08);
+          click.start(landTime);
+          click.stop(landTime + 0.07);
 
-          // Sub rumble tail
+          // Sub rumble
           const sub = ctx.createOscillator();
           const subGain = ctx.createGain();
           sub.type = 'sine';
-          sub.frequency.setValueAtTime(35, t + 0.02);
-          subGain.gain.setValueAtTime(0.12, t + 0.02);
-          subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+          sub.frequency.setValueAtTime(32, landTime + 0.01);
+          subGain.gain.setValueAtTime(0.14, landTime + 0.01);
+          subGain.gain.exponentialRampToValueAtTime(0.001, landTime + 0.09);
           sub.connect(subGain).connect(ctx.destination);
-          sub.start(t + 0.02);
-          sub.stop(t + 0.12);
+          sub.start(landTime + 0.01);
+          sub.stop(landTime + 0.12);
         }
       }
 
@@ -110,8 +123,7 @@ export function useAudio() {
       }
 
       if (sound === 'win') {
-        // Coin shower — rapid tinkling coins falling
-        // Quick metallic pings at random-ish pitches
+        // Coin shower — rapid tinkling coins
         const coinFreqs = [2400, 3200, 2800, 3600, 2600, 3400, 2900, 3100, 2500, 3800,
                            2700, 3300, 2850, 3500, 2650, 3700, 2950, 3150, 2750, 3900];
         coinFreqs.forEach((freq, i) => {
@@ -139,14 +151,13 @@ export function useAudio() {
           harm.stop(now + t + 0.1);
         });
 
-        // Celebratory base chord underneath
+        // Celebratory chord
         [523, 659, 784].forEach(f => {
           playNote(ctx, f, now, 0.8, 'sine', 0.05);
         });
       }
 
       if (sound === 'bigWin') {
-        // Massive coin avalanche + fanfare
         // Deep bass drums
         [0, 0.2, 0.4].forEach(t => {
           const drum = ctx.createOscillator();
@@ -161,7 +172,7 @@ export function useAudio() {
           drum.stop(now + t + 0.3);
         });
 
-        // Massive coin shower — lots of coins
+        // Massive coin shower
         for (let i = 0; i < 30; i++) {
           const freq = 2200 + Math.random() * 2000;
           const t = i * 0.03 + Math.random() * 0.02;
@@ -176,7 +187,6 @@ export function useAudio() {
           osc.start(now + t);
           osc.stop(now + t + 0.18);
 
-          // Metallic overtone
           const h = ctx.createOscillator();
           const hg = ctx.createGain();
           h.type = 'triangle';
