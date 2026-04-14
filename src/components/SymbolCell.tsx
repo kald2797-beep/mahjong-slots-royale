@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SYMBOLS, CellState } from '../game/types';
+import { SYMBOLS, CellState, ROWS } from '../game/types';
 
 interface SymbolCellProps {
   cell: CellState;
@@ -12,18 +12,24 @@ interface SymbolCellProps {
 export function SymbolCell({ cell, isWinning, isExploding, colIndex, rowIndex }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
+  // Reel-style drop: come from far above, stagger by row
   return (
     <motion.div
       key={cell.key}
       layout
-      initial={{ y: -80, opacity: 0, scale: 0.5 }}
+      initial={{ y: -(ROWS * 70), opacity: 0 }}
       animate={{
         y: 0,
         opacity: isExploding && isWinning ? 0 : 1,
         scale: isExploding && isWinning ? 1.4 : isWinning ? 1.08 : 1,
       }}
       transition={{
-        y: { type: 'spring', stiffness: 300, damping: 25, delay: colIndex * 0.05 },
+        y: {
+          type: 'spring',
+          stiffness: 180,
+          damping: 18,
+          delay: rowIndex * 0.06 + colIndex * 0.02,
+        },
         opacity: { duration: 0.3 },
         scale: { duration: 0.2 },
       }}

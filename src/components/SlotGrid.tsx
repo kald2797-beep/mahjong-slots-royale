@@ -1,4 +1,4 @@
-import { Grid as GridType, WinCluster, COLS, ROWS } from '../game/types';
+import { Grid as GridType, WinCluster, COLS, ROWS, MULTIPLIER_STEPS } from '../game/types';
 import { SymbolCell } from './SymbolCell';
 import { AnimatePresence } from 'framer-motion';
 
@@ -6,16 +6,43 @@ interface SlotGridProps {
   grid: GridType;
   winClusters: WinCluster[];
   phase: string;
+  cascadeCount: number;
 }
 
-export function SlotGrid({ grid, winClusters, phase }: SlotGridProps) {
+export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridProps) {
   const winningPositions = new Set<string>();
   winClusters.forEach(c => c.positions.forEach(([col, row]) => winningPositions.add(`${col},${row}`)));
 
   const isExploding = phase === 'exploding';
 
   return (
-    <div className="game-panel rounded-xl p-2 sm:p-3">
+    <div className="board-panel rounded-xl p-2 sm:p-3">
+      {/* Multiplier strip */}
+      <div className="flex justify-center gap-1.5 mb-2">
+        {MULTIPLIER_STEPS.map((m, i) => {
+          const isActive = cascadeCount > 0 && i <= cascadeCount - 1;
+          const isCurrent = cascadeCount > 0 && i === cascadeCount - 1;
+          return (
+            <div
+              key={m}
+              className={`
+                px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wide
+                transition-all duration-300
+                ${isCurrent
+                  ? 'bg-primary text-primary-foreground glow-gold scale-110'
+                  : isActive
+                    ? 'bg-primary/30 text-primary'
+                    : 'bg-muted/60 text-muted-foreground'
+                }
+              `}
+            >
+              x{m}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Grid */}
       <div
         className="grid gap-1 sm:gap-1.5"
         style={{
@@ -24,7 +51,6 @@ export function SlotGrid({ grid, winClusters, phase }: SlotGridProps) {
         }}
       >
         <AnimatePresence mode="popLayout">
-          {/* Render column by column, row by row (grid reads col-major but displays row-major) */}
           {Array.from({ length: ROWS }, (_, row) =>
             Array.from({ length: COLS }, (_, col) => {
               const cell = grid[col][row];
