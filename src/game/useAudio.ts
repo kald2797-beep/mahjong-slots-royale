@@ -2,6 +2,19 @@ import { useCallback, useRef } from 'react';
 
 type SoundName = 'spin' | 'cascade' | 'win' | 'bigWin' | 'reelDrop';
 
+function playNote(ctx: AudioContext, freq: number, startTime: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, startTime);
+  gain.gain.setValueAtTime(volume, startTime);
+  gain.gain.setValueAtTime(volume * 0.8, startTime + duration * 0.6);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration);
+}
+
 export function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
 
@@ -10,19 +23,6 @@ export function useAudio() {
       ctxRef.current = new AudioContext();
     }
     return ctxRef.current;
-  }, []);
-
-  const playNote = useCallback((ctx: AudioContext, freq: number, startTime: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, startTime);
-    gain.gain.setValueAtTime(volume, startTime);
-    gain.gain.setValueAtTime(volume * 0.8, startTime + duration * 0.6);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(startTime);
-    osc.stop(startTime + duration);
   }, []);
 
   const play = useCallback((sound: SoundName) => {
