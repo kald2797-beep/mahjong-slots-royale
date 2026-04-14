@@ -152,7 +152,7 @@ export function useAudio() {
     } catch {
       // Audio not available
     }
-  }, [getCtx, playNote]);
+  }, [getCtx]);
 
   return { play };
 }
