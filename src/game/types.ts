@@ -4,7 +4,7 @@ export interface SymbolDef {
   id: SymbolId;
   emoji: string;
   name: string;
-  payout: number; // per symbol in cluster
+  payout: number;
 }
 
 export const SYMBOLS: SymbolDef[] = [
@@ -25,7 +25,7 @@ export const MULTIPLIER_STEPS = [1, 2, 3, 5, 10, 15, 25];
 
 export type CellState = {
   symbolId: SymbolId;
-  key: number; // unique key for animation
+  key: number;
 };
 
 export type Grid = CellState[][];
@@ -47,5 +47,5 @@ export interface GameState {
   isSpinning: boolean;
   isAutoSpin: boolean;
   winClusters: WinCluster[];
-  phase: 'idle' | 'spinning' | 'revealing' | 'exploding' | 'cascading' | 'settling';
+  phase: 'idle' | 'clearing' | 'spinning' | 'revealing' | 'exploding' | 'cascading' | 'settling';
 }

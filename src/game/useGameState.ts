@@ -56,6 +56,7 @@ export function useGameState() {
       totalWin: accumulatedWin + win,
       cascadeCount: cascadeCount + 1,
     }));
+    play('reelDrop');
     await delay(500);
 
     // Recurse
@@ -68,7 +69,7 @@ export function useGameState() {
       return {
         ...s,
         isSpinning: true,
-        phase: 'spinning',
+        phase: 'clearing',
         balance: s.balance - s.bet,
         totalWin: 0,
         currentWin: 0,
@@ -80,15 +81,19 @@ export function useGameState() {
 
     play('spin');
     
+    // Wait for clearing animation
+    await delay(400);
+
     // Generate new grid
     const newGrid = createGrid();
     
-    // Quick reveal with stagger effect
+    // Drop new symbols in
     setState(s => {
-      if (!s.isSpinning && s.phase !== 'spinning') return s; // guard
-      return { ...s, grid: newGrid, phase: 'settling' };
+      if (!s.isSpinning && s.phase !== 'clearing') return s;
+      return { ...s, grid: newGrid, phase: 'spinning' };
     });
-    await delay(600);
+    play('reelDrop');
+    await delay(700);
 
     // Get current bet from state
     let currentBet = 1;
@@ -106,10 +111,8 @@ export function useGameState() {
       winClusters: [],
     }));
 
-    // Auto-spin
     if (autoSpinRef.current) {
       await delay(500);
-      // Trigger next spin via ref check
     }
 
     return result.totalWin;

@@ -5,32 +5,39 @@ interface SymbolCellProps {
   cell: CellState;
   isWinning: boolean;
   isExploding: boolean;
+  isClearing: boolean;
   colIndex: number;
   rowIndex: number;
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, colIndex, rowIndex }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, colIndex, rowIndex }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
-  // Reel-style drop: come from far above, stagger by row
   return (
     <motion.div
       key={cell.key}
       layout
-      initial={{ y: -(ROWS * 70), opacity: 0 }}
+      initial={{ y: -(ROWS * 80), opacity: 0 }}
       animate={{
-        y: 0,
-        opacity: isExploding && isWinning ? 0 : 1,
+        y: isClearing ? (ROWS * 80) : 0,
+        opacity: isClearing ? 0 : (isExploding && isWinning ? 0 : 1),
         scale: isExploding && isWinning ? 1.4 : isWinning ? 1.08 : 1,
+      }}
+      exit={{
+        y: ROWS * 80,
+        opacity: 0,
+        transition: { duration: 0.3, ease: 'easeIn' },
       }}
       transition={{
         y: {
           type: 'spring',
-          stiffness: 180,
-          damping: 18,
-          delay: rowIndex * 0.06 + colIndex * 0.02,
+          stiffness: isClearing ? 300 : 160,
+          damping: isClearing ? 25 : 16,
+          delay: isClearing 
+            ? colIndex * 0.03 + rowIndex * 0.02
+            : rowIndex * 0.07 + colIndex * 0.025,
         },
-        opacity: { duration: 0.3 },
+        opacity: { duration: 0.25 },
         scale: { duration: 0.2 },
       }}
       className={`

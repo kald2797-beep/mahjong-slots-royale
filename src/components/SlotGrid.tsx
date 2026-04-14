@@ -14,6 +14,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
   winClusters.forEach(c => c.positions.forEach(([col, row]) => winningPositions.add(`${col},${row}`)));
 
   const isExploding = phase === 'exploding';
+  const isClearing = phase === 'clearing';
 
   return (
     <div className="board-panel rounded-xl p-2 sm:p-3">
@@ -44,7 +45,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
 
       {/* Grid */}
       <div
-        className="grid gap-1 sm:gap-1.5"
+        className="grid gap-1 sm:gap-1.5 overflow-hidden"
         style={{
           gridTemplateColumns: `repeat(${COLS}, 1fr)`,
           gridTemplateRows: `repeat(${ROWS}, 1fr)`,
@@ -61,6 +62,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
                   cell={cell}
                   isWinning={winningPositions.has(posKey)}
                   isExploding={isExploding}
+                  isClearing={isClearing}
                   colIndex={col}
                   rowIndex={row}
                 />

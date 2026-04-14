@@ -4,6 +4,7 @@ import { SlotGrid } from '../components/SlotGrid';
 import { TopBar } from '../components/TopBar';
 import { Controls } from '../components/Controls';
 import { BigWinOverlay } from '../components/BigWinOverlay';
+import bgTemple from '../assets/bg-temple.jpg';
 
 const Index = () => {
   const { state, spin, setBet, toggleAutoSpin, betOptions, autoSpinRef } = useGameState();
@@ -32,15 +33,16 @@ const Index = () => {
   return (
     <div
       ref={containerRef}
-      className={`casino-gradient min-h-screen min-h-[100dvh] flex flex-col items-center justify-between 
+      className={`min-h-screen min-h-[100dvh] flex flex-col items-center justify-between 
                   px-2 py-3 sm:px-4 sm:py-4 max-w-md mx-auto relative overflow-hidden
                   ${showShake ? 'screen-shake' : ''}`}
     >
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-40 h-40 rounded-full bg-secondary/10 blur-3xl" />
-        <div className="absolute bottom-1/3 -right-20 w-48 h-48 rounded-full bg-primary/10 blur-3xl" />
-      </div>
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${bgTemple})` }}
+      />
+      <div className="absolute inset-0 bg-background/40" />
 
       {/* Top bar */}
       <div className="w-full relative z-10">
