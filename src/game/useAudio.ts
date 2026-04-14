@@ -144,45 +144,52 @@ export function useAudio() {
       }
 
       if (sound === 'bigWin') {
-        // Grand fanfare — layered pentatonic celebration
-        // Drum hits
-        [0, 0.15, 0.3].forEach(t => {
+        // Massive coin avalanche + fanfare
+        // Deep bass drums
+        [0, 0.2, 0.4].forEach(t => {
           const drum = ctx.createOscillator();
           const drumGain = ctx.createGain();
           drum.type = 'sine';
-          drum.frequency.setValueAtTime(150, now + t);
-          drum.frequency.exponentialRampToValueAtTime(50, now + t + 0.15);
-          drumGain.gain.setValueAtTime(0.12, now + t);
-          drumGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+          drum.frequency.setValueAtTime(80, now + t);
+          drum.frequency.exponentialRampToValueAtTime(30, now + t + 0.2);
+          drumGain.gain.setValueAtTime(0.2, now + t);
+          drumGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.25);
           drum.connect(drumGain).connect(ctx.destination);
           drum.start(now + t);
-          drum.stop(now + t + 0.2);
+          drum.stop(now + t + 0.3);
         });
 
-        // Ascending melody
-        const melody = [
-          { f: 659, t: 0.05 },   // E5
-          { f: 784, t: 0.15 },   // G5
-          { f: 987, t: 0.25 },   // B5
-          { f: 1175, t: 0.35 },  // D6
-          { f: 1318, t: 0.45 },  // E6
-          { f: 1568, t: 0.55 },  // G6
-          { f: 1975, t: 0.65 },  // B6
-        ];
-        melody.forEach(({ f, t }) => {
-          playNote(ctx, f, now + t, 0.3, 'sine', 0.09);
-          playNote(ctx, f * 0.5, now + t, 0.25, 'triangle', 0.04);
-        });
+        // Massive coin shower — lots of coins
+        for (let i = 0; i < 30; i++) {
+          const freq = 2200 + Math.random() * 2000;
+          const t = i * 0.03 + Math.random() * 0.02;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + t);
+          osc.frequency.setValueAtTime(freq * 0.97, now + t + 0.04);
+          gain.gain.setValueAtTime(0.05, now + t);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + t);
+          osc.stop(now + t + 0.18);
 
-        // Final triumphant chord
-        [1568, 1975, 2349, 2637].forEach(f => {
-          playNote(ctx, f, now + 0.75, 0.7, 'sine', 0.06);
-          playNote(ctx, f * 0.5, now + 0.75, 0.6, 'triangle', 0.03);
-        });
+          // Metallic overtone
+          const h = ctx.createOscillator();
+          const hg = ctx.createGain();
+          h.type = 'triangle';
+          h.frequency.setValueAtTime(freq * 2.5, now + t);
+          hg.gain.setValueAtTime(0.015, now + t);
+          hg.gain.exponentialRampToValueAtTime(0.001, now + t + 0.1);
+          h.connect(hg).connect(ctx.destination);
+          h.start(now + t);
+          h.stop(now + t + 0.12);
+        }
 
-        // Shimmer tail
-        [2637, 3135, 3520].forEach((f, i) => {
-          playNote(ctx, f, now + 1.0 + i * 0.08, 0.5, 'sine', 0.03);
+        // Triumphant chord swell
+        [523, 659, 784, 1047].forEach(f => {
+          playNote(ctx, f, now + 0.1, 1.2, 'sine', 0.07);
+          playNote(ctx, f * 2, now + 0.5, 0.8, 'sine', 0.03);
         });
       }
     } catch {
