@@ -1,6 +1,5 @@
 import { Grid as GridType, WinCluster, COLS, ROWS, MULTIPLIER_STEPS } from '../game/types';
 import { SymbolCell } from './SymbolCell';
-import { AnimatePresence } from 'framer-motion';
 
 interface SlotGridProps {
   grid: GridType;
@@ -51,25 +50,23 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
           gridTemplateRows: `repeat(${ROWS}, 1fr)`,
         }}
       >
-        <AnimatePresence mode="popLayout">
-          {Array.from({ length: ROWS }, (_, row) =>
-            Array.from({ length: COLS }, (_, col) => {
-              const cell = grid[col][row];
-              const posKey = `${col},${row}`;
-              return (
-                <SymbolCell
-                  key={cell.key}
-                  cell={cell}
-                  isWinning={winningPositions.has(posKey)}
-                  isExploding={isExploding}
-                  isClearing={isClearing}
-                  colIndex={col}
-                  rowIndex={row}
-                />
-              );
-            })
-          )}
-        </AnimatePresence>
+        {Array.from({ length: ROWS }, (_, row) =>
+          Array.from({ length: COLS }, (_, col) => {
+            const cell = grid[col][row];
+            const posKey = `${col},${row}`;
+            return (
+              <SymbolCell
+                key={`${cell.key}-${isClearing ? 'c' : 'd'}`}
+                cell={cell}
+                isWinning={winningPositions.has(posKey)}
+                isExploding={isExploding}
+                isClearing={isClearing}
+                colIndex={col}
+                rowIndex={row}
+              />
+            );
+          })
+        )}
       </div>
     </div>
   );
