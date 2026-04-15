@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { SYMBOLS, CellState, ROWS } from '../game/types';
+import { SymbolIcon } from './SymbolIcon';
 
 interface SymbolCellProps {
   cell: CellState;
@@ -29,9 +30,7 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
         }}
         className="symbol-cell rounded-lg flex items-center justify-center aspect-square"
       >
-        <span className="text-2xl sm:text-3xl md:text-4xl select-none" role="img" aria-label={symbol.name}>
-          {symbol.emoji}
-        </span>
+        <SymbolIcon symbolId={cell.symbolId} />
       </motion.div>
     );
   }
@@ -76,9 +75,7 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
         ${isExploding && isWinning ? 'explode' : ''}
       `}
     >
-      <span className="text-2xl sm:text-3xl md:text-4xl select-none" role="img" aria-label={symbol.name}>
-        {symbol.emoji}
-      </span>
+        <SymbolIcon symbolId={cell.symbolId} />
     </motion.div>
   );
 }
