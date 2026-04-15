@@ -79,11 +79,18 @@ export function removeWinning(grid: Grid, clusters: WinCluster[]): Grid {
   }
   
   for (let col = 0; col < COLS; col++) {
-    const remaining = newGrid[col].filter((_, row) => !toRemove.has(`${col},${row}`));
+    // Track surviving cells with their original row index
+    const remaining: CellState[] = [];
+    for (let row = 0; row < ROWS; row++) {
+      if (!toRemove.has(`${col},${row}`)) {
+        remaining.push({ ...newGrid[col][row], fromRow: row });
+      }
+    }
     const fillCount = ROWS - remaining.length;
-    const newCells: CellState[] = Array.from({ length: fillCount }, () => ({
+    const newCells: CellState[] = Array.from({ length: fillCount }, (_, i) => ({
       symbolId: randomSymbol(),
       key: nextKey(),
+      fromRow: -(fillCount - i), // negative = drops from above
     }));
     newGrid[col] = [...newCells, ...remaining];
   }

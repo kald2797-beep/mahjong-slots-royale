@@ -26,6 +26,7 @@ export const MULTIPLIER_STEPS = [1, 2, 3, 5, 10, 15, 25];
 export type CellState = {
   symbolId: SymbolId;
   key: number;
+  fromRow?: number; // previous row index, negative means new from above
 };
 
 export type Grid = CellState[][];
