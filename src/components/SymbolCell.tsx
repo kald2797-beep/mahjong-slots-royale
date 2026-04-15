@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SYMBOLS, CellState, ROWS } from '../game/types';
 import { SymbolIcon } from './SymbolIcon';
+import { useMemo } from 'react';
 
 interface SymbolCellProps {
   cell: CellState;
@@ -12,7 +13,95 @@ interface SymbolCellProps {
   rowIndex: number;
 }
 
-const CELL_HEIGHT = 80; // approximate cell height in px
+const CELL_HEIGHT = 80;
+
+// Generate random particles for explosion
+function useParticles(count: number) {
+  return useMemo(() => 
+    Array.from({ length: count }, (_, i) => ({
+      id: i,
+      angle: (360 / count) * i + (Math.random() - 0.5) * 30,
+      distance: 40 + Math.random() * 60,
+      size: 3 + Math.random() * 6,
+      delay: Math.random() * 0.1,
+      duration: 0.4 + Math.random() * 0.3,
+      rotation: Math.random() * 720 - 360,
+      color: [
+        'hsl(38 92% 55%)',   // gold
+        'hsl(42 100% 70%)',  // light gold
+        'hsl(0 84% 60%)',    // red
+        'hsl(330 100% 60%)', // pink
+        'hsl(160 100% 50%)', // green
+        'hsl(280 80% 60%)',  // purple
+      ][Math.floor(Math.random() * 6)],
+    })),
+  [count]);
+}
+
+function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex: number }) {
+  const particles = useParticles(12);
+  const baseDelay = colIndex * 0.02 + rowIndex * 0.01;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-20">
+      {particles.map((p) => {
+        const radians = (p.angle * Math.PI) / 180;
+        const tx = Math.cos(radians) * p.distance;
+        const ty = Math.sin(radians) * p.distance;
+
+        return (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full"
+            style={{
+              width: p.size,
+              height: p.size,
+              backgroundColor: p.color,
+              top: '50%',
+              left: '50%',
+              marginTop: -p.size / 2,
+              marginLeft: -p.size / 2,
+              boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+            }}
+            initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+            animate={{
+              x: tx,
+              y: ty,
+              scale: 0,
+              opacity: 0,
+              rotate: p.rotation,
+            }}
+            transition={{
+              duration: p.duration,
+              delay: baseDelay + p.delay,
+              ease: 'easeOut',
+            }}
+          />
+        );
+      })}
+
+      {/* Central flash */}
+      <motion.div
+        className="absolute inset-[-20%] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, hsl(38 92% 55% / 0.8) 0%, hsl(38 92% 55% / 0) 70%)',
+        }}
+        initial={{ scale: 0.3, opacity: 1 }}
+        animate={{ scale: 2, opacity: 0 }}
+        transition={{ duration: 0.4, delay: baseDelay, ease: 'easeOut' }}
+      />
+
+      {/* Shockwave ring */}
+      <motion.div
+        className="absolute inset-0 rounded-full border-2"
+        style={{ borderColor: 'hsl(38 92% 55% / 0.6)' }}
+        initial={{ scale: 0.5, opacity: 1 }}
+        animate={{ scale: 2.5, opacity: 0 }}
+        transition={{ duration: 0.5, delay: baseDelay + 0.05, ease: 'easeOut' }}
+      />
+    </div>
+  );
+}
 
 export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
@@ -39,43 +128,73 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
   let initialY: number;
   if (isCascading && cell.fromRow !== undefined) {
     if (cell.fromRow < 0) {
-      // New cell dropping from above
       initialY = cell.fromRow * CELL_HEIGHT;
     } else {
-      // Existing cell: animate from old position to new position
       initialY = (cell.fromRow - rowIndex) * CELL_HEIGHT;
     }
   } else {
-    // Default: drop from top (initial spin)
     initialY = -(ROWS * CELL_HEIGHT);
   }
 
+  const isExplodingWin = isExploding && isWinning;
+
   return (
-    <motion.div
-      key={cell.key}
-      initial={{ y: initialY, opacity: isCascading ? 1 : 0 }}
-      animate={{
-        y: 0,
-        opacity: isExploding && isWinning ? 0 : 1,
-        scale: isExploding && isWinning ? 1.4 : isWinning ? 1.08 : 1,
-      }}
-      transition={{
-        y: {
-          type: 'spring',
-          stiffness: 160,
-          damping: 16,
-          delay: isCascading ? colIndex * 0.02 : rowIndex * 0.07 + colIndex * 0.025,
-        },
-        opacity: { duration: 0.25 },
-        scale: { duration: 0.2 },
-      }}
-      className={`
-        symbol-cell rounded-lg flex items-center justify-center aspect-square
-        ${isWinning && !isExploding ? 'winning pulse-glow' : ''}
-        ${isExploding && isWinning ? 'explode' : ''}
-      `}
-    >
+    <div className="relative aspect-square">
+      {/* Explosion particles */}
+      {isExplodingWin && (
+        <ExplosionParticles colIndex={colIndex} rowIndex={rowIndex} />
+      )}
+
+      <motion.div
+        key={cell.key}
+        initial={{ y: initialY, opacity: isCascading ? 1 : 0 }}
+        animate={{
+          y: 0,
+          opacity: isExplodingWin ? 0 : 1,
+          scale: isExplodingWin ? 0 : isWinning ? 1.08 : 1,
+          rotate: isExplodingWin ? 180 : 0,
+          filter: isWinning && !isExploding
+            ? 'brightness(1.3) drop-shadow(0 0 6px hsl(38 92% 55% / 0.6))'
+            : 'brightness(1)',
+        }}
+        transition={{
+          y: {
+            type: 'spring',
+            stiffness: 160,
+            damping: 16,
+            delay: isCascading ? colIndex * 0.02 : rowIndex * 0.07 + colIndex * 0.025,
+          },
+          opacity: { duration: 0.3 },
+          scale: { duration: 0.35, ease: 'backIn' },
+          rotate: { duration: 0.35 },
+          filter: { duration: 0.3 },
+        }}
+        className={`
+          symbol-cell rounded-lg flex items-center justify-center w-full h-full
+          ${isWinning && !isExploding ? 'winning' : ''}
+        `}
+        style={isWinning && !isExploding ? {
+          boxShadow: '0 0 15px hsl(38 92% 55% / 0.5), 0 0 30px hsl(38 92% 55% / 0.2)',
+        } : undefined}
+      >
+        {/* Golden glow ring on winning */}
+        {isWinning && !isExploding && (
+          <motion.div
+            className="absolute inset-[-2px] rounded-lg border-2 pointer-events-none"
+            style={{ borderColor: 'hsl(38 92% 55%)' }}
+            animate={{
+              opacity: [0.4, 1, 0.4],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        )}
         <SymbolIcon symbolId={cell.symbolId} />
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
