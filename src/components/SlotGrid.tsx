@@ -14,6 +14,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
 
   const isExploding = phase === 'exploding';
   const isClearing = phase === 'clearing';
+  const isCascading = phase === 'cascading';
 
   return (
     <div className="board-panel rounded-xl p-2 sm:p-3">
@@ -61,6 +62,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
                 isWinning={winningPositions.has(posKey)}
                 isExploding={isExploding}
                 isClearing={isClearing}
+                isCascading={isCascading}
                 colIndex={col}
                 rowIndex={row}
               />

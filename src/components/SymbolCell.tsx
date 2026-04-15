@@ -6,11 +6,14 @@ interface SymbolCellProps {
   isWinning: boolean;
   isExploding: boolean;
   isClearing: boolean;
+  isCascading: boolean;
   colIndex: number;
   rowIndex: number;
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, colIndex, rowIndex }: SymbolCellProps) {
+const CELL_HEIGHT = 80; // approximate cell height in px
+
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
   if (isClearing) {
@@ -18,7 +21,7 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, colIndex,
       <motion.div
         key={`clear-${cell.key}`}
         initial={{ y: 0, opacity: 1 }}
-        animate={{ y: ROWS * 80, opacity: 0 }}
+        animate={{ y: ROWS * CELL_HEIGHT, opacity: 0 }}
         transition={{
           duration: 0.3,
           ease: 'easeIn',
@@ -33,10 +36,25 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, colIndex,
     );
   }
 
+  // Calculate initial Y based on where this cell came from
+  let initialY: number;
+  if (isCascading && cell.fromRow !== undefined) {
+    if (cell.fromRow < 0) {
+      // New cell dropping from above
+      initialY = cell.fromRow * CELL_HEIGHT;
+    } else {
+      // Existing cell: animate from old position to new position
+      initialY = (cell.fromRow - rowIndex) * CELL_HEIGHT;
+    }
+  } else {
+    // Default: drop from top (initial spin)
+    initialY = -(ROWS * CELL_HEIGHT);
+  }
+
   return (
     <motion.div
       key={cell.key}
-      initial={{ y: -(ROWS * 80), opacity: 0 }}
+      initial={{ y: initialY, opacity: isCascading ? 1 : 0 }}
       animate={{
         y: 0,
         opacity: isExploding && isWinning ? 0 : 1,
@@ -47,7 +65,7 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, colIndex,
           type: 'spring',
           stiffness: 160,
           damping: 16,
-          delay: rowIndex * 0.07 + colIndex * 0.025,
+          delay: isCascading ? colIndex * 0.02 : rowIndex * 0.07 + colIndex * 0.025,
         },
         opacity: { duration: 0.25 },
         scale: { duration: 0.2 },
