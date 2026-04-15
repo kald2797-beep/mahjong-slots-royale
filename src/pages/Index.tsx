@@ -4,7 +4,7 @@ import { SlotGrid } from '../components/SlotGrid';
 import { TopBar } from '../components/TopBar';
 import { Controls } from '../components/Controls';
 import { BigWinOverlay } from '../components/BigWinOverlay';
-import bgTemple from '../assets/bg-temple.jpg';
+import bgDragonParadise from '../assets/bg-dragon-paradise.jpg';
 
 const Index = () => {
   const { state, spin, setBet, toggleAutoSpin, betOptions, autoSpinRef } = useGameState();
@@ -40,7 +40,7 @@ const Index = () => {
       {/* Background image - full bleed */}
       <div
         className="fixed inset-0 w-screen h-screen bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${bgTemple})` }}
+        style={{ backgroundImage: `url(${bgDragonParadise})` }}
       />
       <div className="fixed inset-0 w-screen h-screen bg-black/30" />
 
