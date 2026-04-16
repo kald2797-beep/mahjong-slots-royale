@@ -1,10 +1,12 @@
-export type SymbolId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type SymbolId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export interface SymbolDef {
   id: SymbolId;
   emoji: string;
   name: string;
   payout: number;
+  isScatter?: boolean;
+  isWild?: boolean;
 }
 
 export const SYMBOLS: SymbolDef[] = [
@@ -16,17 +18,21 @@ export const SYMBOLS: SymbolDef[] = [
   { id: 5, emoji: '🎎', name: 'Dolls', payout: 1 },
   { id: 6, emoji: '🧧', name: 'Red Envelope', payout: 0.8 },
   { id: 7, emoji: '🎴', name: 'Card', payout: 0.5 },
+  { id: 8, emoji: '🔮', name: 'Scatter', payout: 0, isScatter: true },
+  { id: 9, emoji: '⭐', name: 'Wild', payout: 0, isWild: true },
 ];
 
 export const COLS = 5;
 export const ROWS = 5;
 
 export const MULTIPLIER_STEPS = [1, 2, 3, 5, 10, 15, 25];
+export const FREE_SPIN_MULTIPLIER_STEPS = [2, 4, 6, 10, 15, 25, 50];
 
 export type CellState = {
   symbolId: SymbolId;
   key: number;
-  fromRow?: number; // previous row index, negative means new from above
+  fromRow?: number;
+  isGoldenWild?: boolean; // transformed to wild after win
 };
 
 export type Grid = CellState[][];
@@ -35,6 +41,15 @@ export interface WinCluster {
   positions: [number, number][];
   symbolId: SymbolId;
   payout: number;
+}
+
+export interface FreeSpinState {
+  active: boolean;
+  totalSpins: number;
+  remainingSpins: number;
+  totalWin: number;
+  multiplier: number;
+  phase: 'inactive' | 'intro' | 'spinning' | 'summary';
 }
 
 export interface GameState {
@@ -49,4 +64,6 @@ export interface GameState {
   isAutoSpin: boolean;
   winClusters: WinCluster[];
   phase: 'idle' | 'clearing' | 'spinning' | 'revealing' | 'exploding' | 'cascading' | 'settling';
+  freeSpin: FreeSpinState;
+  scatterPositions: [number, number][];
 }
