@@ -275,6 +275,83 @@ function CardIcon() {
   );
 }
 
+// 🔮 Scatter
+function ScatterIcon() {
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="relative w-[70%] h-[70%]">
+        <div className="absolute inset-0 rounded-full animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, hsl(280 80% 70% / 0.6) 0%, transparent 70%)',
+          }} />
+        <div className="absolute inset-[10%] rounded-full shadow-lg"
+          style={{
+            background: 'radial-gradient(circle at 35% 35%, #e9d5ff, #a855f7 40%, #7c3aed 70%, #4c1d95)',
+            boxShadow: '0 0 20px rgba(168,85,247,0.6), inset 0 -2px 4px rgba(0,0,0,0.3)',
+          }}>
+          {/* Inner glow */}
+          <div className="absolute inset-[20%] rounded-full bg-gradient-to-br from-white/40 to-transparent" />
+          {/* Star sparkle */}
+          <div className="absolute inset-0 flex items-center justify-center text-yellow-300 font-display text-[0.7em] font-black"
+            style={{ textShadow: '0 0 6px rgba(250,204,21,0.8)' }}>
+            FS
+          </div>
+        </div>
+        {/* Orbiting sparkles */}
+        {[0, 120, 240].map((angle, i) => (
+          <div key={i} className="absolute w-[6px] h-[6px] rounded-full bg-yellow-300"
+            style={{
+              top: `${50 + 42 * Math.sin((angle * Math.PI) / 180)}%`,
+              left: `${50 + 42 * Math.cos((angle * Math.PI) / 180)}%`,
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 0 4px rgba(250,204,21,0.8)',
+            }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ⭐ Wild
+function WildIcon() {
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="relative w-[75%] h-[75%]">
+        <svg viewBox="0 0 40 40" className="w-full h-full drop-shadow-lg">
+          {/* Star shape */}
+          <polygon
+            points="20,2 25,14 38,16 28,25 31,38 20,32 9,38 12,25 2,16 15,14"
+            fill="url(#wildGrad)"
+            stroke="#fbbf24"
+            strokeWidth="1"
+          />
+          {/* Inner shine */}
+          <polygon
+            points="20,8 23,16 32,17 25,23 27,32 20,28 13,32 15,23 8,17 17,16"
+            fill="url(#wildInner)"
+            opacity="0.7"
+          />
+          <text x="20" y="24" textAnchor="middle" fill="#7c2d12" fontWeight="900" fontSize="8" fontFamily="serif">W</text>
+          <defs>
+            <linearGradient id="wildGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fde047" />
+              <stop offset="50%" stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+            <radialGradient id="wildInner" cx="0.4" cy="0.3">
+              <stop offset="0%" stopColor="#fef3c7" />
+              <stop offset="100%" stopColor="#fbbf24" />
+            </radialGradient>
+          </defs>
+        </svg>
+        {/* Glow */}
+        <div className="absolute inset-[-10%] rounded-full animate-pulse"
+          style={{ background: 'radial-gradient(circle, hsl(38 92% 55% / 0.3) 0%, transparent 60%)' }} />
+      </div>
+    </div>
+  );
+}
+
 const SYMBOL_COMPONENTS: Record<SymbolId, React.FC> = {
   0: RedDragonIcon,
   1: LanternIcon,
@@ -284,6 +361,8 @@ const SYMBOL_COMPONENTS: Record<SymbolId, React.FC> = {
   5: KokeshiIcon,
   6: RedEnvelopeIcon,
   7: CardIcon,
+  8: ScatterIcon,
+  9: WildIcon,
 };
 
 export function SymbolIcon({ symbolId, className = '' }: SymbolIconProps) {
