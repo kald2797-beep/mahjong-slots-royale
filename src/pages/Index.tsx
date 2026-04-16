@@ -4,27 +4,29 @@ import { SlotGrid } from '../components/SlotGrid';
 import { TopBar } from '../components/TopBar';
 import { Controls } from '../components/Controls';
 import { BigWinOverlay } from '../components/BigWinOverlay';
+import { FreeSpinOverlay } from '../components/FreeSpinOverlay';
 import bgDragonParadise from '../assets/bg-dragon-paradise.jpg';
 
 const Index = () => {
   const { state, spin, setBet, toggleAutoSpin, betOptions, autoSpinRef } = useGameState();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const showBigWin = state.phase === 'idle' && state.totalWin > state.bet * 10;
+  const showBigWin = state.phase === 'idle' && state.totalWin > state.bet * 10 && !state.freeSpin.active;
   const showShake = state.phase === 'idle' && state.totalWin > state.bet * 20;
+  const isFreeSpinMode = state.freeSpin.active;
 
   // Auto-spin loop
   const spinRef = useRef(spin);
   spinRef.current = spin;
   
   useEffect(() => {
-    if (state.phase === 'idle' && autoSpinRef.current && state.balance >= state.bet) {
+    if (state.phase === 'idle' && autoSpinRef.current && state.balance >= state.bet && !isFreeSpinMode) {
       const timer = setTimeout(() => {
         spinRef.current();
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [state.phase, state.balance, state.bet, autoSpinRef]);
+  }, [state.phase, state.balance, state.bet, autoSpinRef, isFreeSpinMode]);
 
   const handleSpin = useCallback(() => {
     spin();
@@ -42,7 +44,14 @@ const Index = () => {
         className="fixed inset-0 w-screen h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${bgDragonParadise})` }}
       />
-      <div className="fixed inset-0 w-screen h-screen bg-black/30" />
+      <div className={`fixed inset-0 w-screen h-screen transition-colors duration-500 ${
+        isFreeSpinMode ? 'bg-purple-950/50' : 'bg-black/30'
+      }`} />
+
+      {/* Free spin border glow */}
+      {isFreeSpinMode && state.freeSpin.phase === 'spinning' && (
+        <div className="fixed inset-0 pointer-events-none z-40 fs-border-glow" />
+      )}
 
       {/* Top bar */}
       <div className="w-full relative z-10">
@@ -63,6 +72,8 @@ const Index = () => {
             winClusters={state.winClusters}
             phase={state.phase}
             cascadeCount={state.cascadeCount}
+            scatterPositions={state.scatterPositions}
+            isFreeSpinMode={isFreeSpinMode}
           />
         </div>
         <BigWinOverlay amount={state.totalWin} visible={showBigWin} />
@@ -78,9 +89,12 @@ const Index = () => {
           onBetChange={setBet}
           isAutoSpin={state.isAutoSpin}
           onToggleAutoSpin={toggleAutoSpin}
-          canSpin={state.balance >= state.bet}
+          canSpin={state.balance >= state.bet && !isFreeSpinMode}
         />
       </div>
+
+      {/* Free Spin Overlay */}
+      <FreeSpinOverlay freeSpin={state.freeSpin} />
     </div>
   );
 };
