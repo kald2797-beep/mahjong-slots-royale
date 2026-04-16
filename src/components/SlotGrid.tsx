@@ -1,4 +1,4 @@
-import { Grid as GridType, WinCluster, COLS, ROWS, MULTIPLIER_STEPS } from '../game/types';
+import { Grid as GridType, WinCluster, COLS, ROWS, MULTIPLIER_STEPS, FREE_SPIN_MULTIPLIER_STEPS } from '../game/types';
 import { SymbolCell } from './SymbolCell';
 
 interface SlotGridProps {
@@ -6,21 +6,30 @@ interface SlotGridProps {
   winClusters: WinCluster[];
   phase: string;
   cascadeCount: number;
+  scatterPositions?: [number, number][];
+  isFreeSpinMode?: boolean;
 }
 
-export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridProps) {
+export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositions = [], isFreeSpinMode = false }: SlotGridProps) {
   const winningPositions = new Set<string>();
   winClusters.forEach(c => c.positions.forEach(([col, row]) => winningPositions.add(`${col},${row}`)));
+
+  const scatterSet = new Set<string>();
+  scatterPositions.forEach(([col, row]) => scatterSet.add(`${col},${row}`));
 
   const isExploding = phase === 'exploding';
   const isClearing = phase === 'clearing';
   const isCascading = phase === 'cascading';
 
+  const multiplierSteps = isFreeSpinMode ? FREE_SPIN_MULTIPLIER_STEPS : MULTIPLIER_STEPS;
+
   return (
-    <div className="board-panel rounded-xl p-2 sm:p-3">
+    <div className={`board-panel rounded-xl p-2 sm:p-3 transition-all duration-500 ${
+      isFreeSpinMode ? 'fs-board' : ''
+    }`}>
       {/* Multiplier strip */}
       <div className="flex justify-center gap-1.5 mb-2">
-        {MULTIPLIER_STEPS.map((m, i) => {
+        {multiplierSteps.map((m, i) => {
           const isActive = cascadeCount > 0 && i <= cascadeCount - 1;
           const isCurrent = cascadeCount > 0 && i === cascadeCount - 1;
           return (
@@ -30,12 +39,17 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
                 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wide
                 transition-all duration-300
                 ${isCurrent
-                  ? 'bg-primary text-primary-foreground glow-gold scale-110'
+                  ? isFreeSpinMode
+                    ? 'bg-purple-500 text-white scale-110'
+                    : 'bg-primary text-primary-foreground glow-gold scale-110'
                   : isActive
-                    ? 'bg-primary/30 text-primary'
+                    ? isFreeSpinMode
+                      ? 'bg-purple-500/30 text-purple-300'
+                      : 'bg-primary/30 text-primary'
                     : 'bg-muted/60 text-muted-foreground'
                 }
               `}
+              style={isCurrent && isFreeSpinMode ? { boxShadow: '0 0 12px hsl(280 80% 60% / 0.6)' } : undefined}
             >
               x{m}
             </div>
@@ -55,6 +69,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
           Array.from({ length: COLS }, (_, col) => {
             const cell = grid[col][row];
             const posKey = `${col},${row}`;
+            const isScatterHighlight = scatterSet.has(posKey);
             return (
               <SymbolCell
                 key={`${cell.key}-${isClearing ? 'c' : 'd'}`}
@@ -65,6 +80,8 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount }: SlotGridPro
                 isCascading={isCascading}
                 colIndex={col}
                 rowIndex={row}
+                isScatterHighlight={isScatterHighlight}
+                isGoldenWild={cell.isGoldenWild}
               />
             );
           })

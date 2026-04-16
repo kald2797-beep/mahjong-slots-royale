@@ -11,6 +11,8 @@ interface SymbolCellProps {
   isCascading: boolean;
   colIndex: number;
   rowIndex: number;
+  isScatterHighlight?: boolean;
+  isGoldenWild?: boolean;
 }
 
 const CELL_HEIGHT = 80;
@@ -103,7 +105,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
   );
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
   if (isClearing) {
@@ -140,6 +142,40 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
 
   return (
     <div className="relative aspect-square">
+      {/* Scatter highlight pulse */}
+      {isScatterHighlight && (
+        <motion.div
+          className="absolute inset-[-4px] rounded-xl pointer-events-none z-30"
+          style={{
+            border: '2px solid hsl(280 80% 60%)',
+            boxShadow: '0 0 20px hsl(280 80% 60% / 0.6), inset 0 0 10px hsl(280 80% 60% / 0.3)',
+          }}
+          animate={{
+            opacity: [0.5, 1, 0.5],
+            scale: [1, 1.06, 1],
+          }}
+          transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+
+      {/* Golden wild transformation glow */}
+      {isGoldenWild && (
+        <motion.div
+          className="absolute inset-[-3px] rounded-xl pointer-events-none z-30"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{
+            opacity: [0.6, 1, 0.6],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            border: '2px solid hsl(38 92% 55%)',
+            boxShadow: '0 0 15px hsl(38 92% 55% / 0.7), 0 0 30px hsl(38 92% 55% / 0.3)',
+            background: 'hsl(38 92% 55% / 0.1)',
+          }}
+        />
+      )}
+
       {/* Explosion particles */}
       {isExplodingWin && (
         <ExplosionParticles colIndex={colIndex} rowIndex={rowIndex} />
