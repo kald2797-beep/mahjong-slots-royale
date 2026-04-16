@@ -11,6 +11,8 @@ interface SymbolCellProps {
   isCascading: boolean;
   colIndex: number;
   rowIndex: number;
+  isScatterHighlight?: boolean;
+  isGoldenWild?: boolean;
 }
 
 const CELL_HEIGHT = 80;
@@ -103,7 +105,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
   );
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
 
   if (isClearing) {
