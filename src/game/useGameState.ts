@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { GameState, Grid, WinCluster, FreeSpinState } from './types';
 import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds } from './engine';
+import { buildForcedGrid, DevForceMode } from './devForce';
 import { useAudio } from './useAudio';
 
 const INITIAL_BALANCE = 1000;
