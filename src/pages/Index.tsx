@@ -5,6 +5,8 @@ import { TopBar } from '../components/TopBar';
 import { Controls } from '../components/Controls';
 import { BigWinOverlay } from '../components/BigWinOverlay';
 import { FreeSpinOverlay } from '../components/FreeSpinOverlay';
+import { DevPanel } from '../components/DevPanel';
+import { DevForceMode } from '../game/devForce';
 import bgDragonParadise from '../assets/bg-dragon-paradise.jpg';
 
 const Index = () => {
@@ -30,6 +32,10 @@ const Index = () => {
 
   const handleSpin = useCallback(() => {
     spin();
+  }, [spin]);
+
+  const handleDevSpin = useCallback((mode: DevForceMode) => {
+    spin(mode);
   }, [spin]);
 
   return (
@@ -95,6 +101,9 @@ const Index = () => {
 
       {/* Free Spin Overlay */}
       <FreeSpinOverlay freeSpin={state.freeSpin} />
+
+      {/* Dev panel — force outcomes for testing */}
+      <DevPanel onForceSpin={handleDevSpin} disabled={state.isSpinning || isFreeSpinMode} />
     </div>
   );
 };

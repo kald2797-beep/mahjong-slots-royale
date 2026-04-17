@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { GameState, Grid, WinCluster, FreeSpinState } from './types';
 import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds } from './engine';
+import { buildForcedGrid, DevForceMode } from './devForce';
 import { useAudio } from './useAudio';
 
 const INITIAL_BALANCE = 1000;
@@ -212,7 +213,7 @@ export function useGameState() {
     }));
   }, [play, runCascadeLoop]);
 
-  const spin = useCallback(async () => {
+  const spin = useCallback(async (devMode?: DevForceMode) => {
     let currentBet = 1;
     setState(s => {
       if (s.isSpinning || s.balance < s.bet) return s;
@@ -234,7 +235,7 @@ export function useGameState() {
     play('spin');
     await delay(400);
 
-    const newGrid = createGrid();
+    const newGrid = devMode ? buildForcedGrid(devMode) : createGrid();
 
     setState(s => {
       if (!s.isSpinning && s.phase !== 'clearing') return s;
