@@ -101,6 +101,9 @@ const Index = () => {
 
       {/* Free Spin Overlay */}
       <FreeSpinOverlay freeSpin={state.freeSpin} />
+
+      {/* Dev panel — force outcomes for testing */}
+      <DevPanel onForceSpin={handleDevSpin} disabled={state.isSpinning || isFreeSpinMode} />
     </div>
   );
 };
