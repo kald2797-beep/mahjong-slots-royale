@@ -34,6 +34,10 @@ const Index = () => {
     spin();
   }, [spin]);
 
+  const handleDevSpin = useCallback((mode: DevForceMode) => {
+    spin(mode);
+  }, [spin]);
+
   return (
     <div
       ref={containerRef}
