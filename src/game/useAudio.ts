@@ -294,6 +294,7 @@ export function useAudio() {
         sigh.start(now);
         sigh.stop(now + 0.6);
       }
+    } catch {
       // Audio not available
     }
   }, [getCtx]);
