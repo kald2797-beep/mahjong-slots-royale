@@ -8,9 +8,11 @@ interface SlotGridProps {
   cascadeCount: number;
   scatterPositions?: [number, number][];
   isFreeSpinMode?: boolean;
+  teaserActive?: boolean;
+  teaserHit?: boolean;
 }
 
-export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositions = [], isFreeSpinMode = false }: SlotGridProps) {
+export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositions = [], isFreeSpinMode = false, teaserActive = false, teaserHit = false }: SlotGridProps) {
   const winningPositions = new Set<string>();
   winClusters.forEach(c => c.positions.forEach(([col, row]) => winningPositions.add(`${col},${row}`)));
 
