@@ -9,7 +9,9 @@ export type DevForceMode =
   | 'smallwin'      // small cluster of low-payout symbol
   | 'chain1'        // single cascade
   | 'chain2'        // two cascades
-  | 'chain3';       // three cascades
+  | 'chain3'        // three cascades
+  | 'teaserHit'     // 2 scatters in cols 0-3 + 1 in col 4 → teaser HITS
+  | 'teaserMiss';   // 2 scatters in cols 0-3, none in col 4 → teaser MISS
 
 function makeCell(symbolId: SymbolId): CellState {
   return { symbolId, key: nextKey() };
@@ -100,6 +102,19 @@ export function buildForcedGrid(mode: DevForceMode): Grid {
         [0, 4, 6], [1, 4, 6], [2, 4, 6], [3, 4, 6], [4, 4, 6],
         [0, 3, 4], [1, 3, 4], [2, 3, 4], [3, 3, 4], [4, 3, 4],
         [0, 2, 2], [1, 2, 2], [2, 2, 2], [3, 2, 2], [4, 2, 2],
+      ]);
+    }
+    case 'teaserHit': {
+      return buildNoiseGrid([
+        [0, 1, 8],
+        [2, 3, 8],
+        [4, 2, 8],
+      ]);
+    }
+    case 'teaserMiss': {
+      return buildNoiseGrid([
+        [0, 1, 8],
+        [3, 3, 8],
       ]);
     }
   }

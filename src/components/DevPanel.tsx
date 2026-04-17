@@ -13,6 +13,8 @@ const BUTTONS: Array<{ mode: DevForceMode; label: string; color: string }> = [
   { mode: 'chain1', label: '⛓️ Chain x1', color: 'bg-sky-600 hover:bg-sky-500' },
   { mode: 'chain2', label: '⛓️⛓️ Chain x2', color: 'bg-indigo-600 hover:bg-indigo-500' },
   { mode: 'chain3', label: '⛓️⛓️⛓️ Chain x3', color: 'bg-fuchsia-600 hover:bg-fuchsia-500' },
+  { mode: 'teaserHit', label: '🎯 Teaser HIT', color: 'bg-orange-600 hover:bg-orange-500' },
+  { mode: 'teaserMiss', label: '😢 Teaser MISS', color: 'bg-slate-600 hover:bg-slate-500' },
 ];
 
 export function DevPanel({ onForceSpin, disabled }: DevPanelProps) {

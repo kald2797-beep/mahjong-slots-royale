@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-type SoundName = 'spin' | 'cascade' | 'win' | 'bigWin' | 'reelDrop' | 'freeSpinTrigger';
+type SoundName = 'spin' | 'cascade' | 'win' | 'bigWin' | 'reelDrop' | 'freeSpinTrigger' | 'teaser' | 'teaserHit' | 'teaserMiss';
 
 function playNote(ctx: AudioContext, freq: number, startTime: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) {
   const osc = ctx.createOscillator();
@@ -203,6 +203,96 @@ export function useAudio() {
           playNote(ctx, f, now + 0.1, 1.2, 'sine', 0.07);
           playNote(ctx, f * 2, now + 0.5, 0.8, 'sine', 0.03);
         });
+      }
+
+      if (sound === 'teaser') {
+        // "ตึงงงงงงง" - long tense rising drone with gong-like attack
+        const duration = 1.6;
+        // Deep gong attack
+        const gong = ctx.createOscillator();
+        const gongGain = ctx.createGain();
+        gong.type = 'sine';
+        gong.frequency.setValueAtTime(80, now);
+        gong.frequency.exponentialRampToValueAtTime(55, now + duration);
+        gongGain.gain.setValueAtTime(0.0, now);
+        gongGain.gain.linearRampToValueAtTime(0.35, now + 0.05);
+        gongGain.gain.exponentialRampToValueAtTime(0.05, now + duration);
+        gong.connect(gongGain).connect(ctx.destination);
+        gong.start(now);
+        gong.stop(now + duration + 0.1);
+
+        // Rising tension drone
+        const drone = ctx.createOscillator();
+        const droneGain = ctx.createGain();
+        drone.type = 'sawtooth';
+        drone.frequency.setValueAtTime(110, now);
+        drone.frequency.exponentialRampToValueAtTime(440, now + duration);
+        droneGain.gain.setValueAtTime(0.0, now);
+        droneGain.gain.linearRampToValueAtTime(0.06, now + 0.3);
+        droneGain.gain.linearRampToValueAtTime(0.12, now + duration);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, now);
+        filter.frequency.exponentialRampToValueAtTime(2000, now + duration);
+        drone.connect(filter).connect(droneGain).connect(ctx.destination);
+        drone.start(now);
+        drone.stop(now + duration + 0.1);
+
+        // Shimmer harmonic
+        const shimmer = ctx.createOscillator();
+        const shimmerGain = ctx.createGain();
+        shimmer.type = 'triangle';
+        shimmer.frequency.setValueAtTime(880, now);
+        shimmer.frequency.linearRampToValueAtTime(1760, now + duration);
+        shimmerGain.gain.setValueAtTime(0.0, now);
+        shimmerGain.gain.linearRampToValueAtTime(0.04, now + duration * 0.7);
+        shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        shimmer.connect(shimmerGain).connect(ctx.destination);
+        shimmer.start(now);
+        shimmer.stop(now + duration + 0.1);
+      }
+
+      if (sound === 'teaserHit') {
+        // Massive impact - scatter landed!
+        const boom = ctx.createOscillator();
+        const boomGain = ctx.createGain();
+        boom.type = 'sine';
+        boom.frequency.setValueAtTime(120, now);
+        boom.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+        boomGain.gain.setValueAtTime(0.4, now);
+        boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        boom.connect(boomGain).connect(ctx.destination);
+        boom.start(now);
+        boom.stop(now + 0.65);
+
+        // Crash cymbal-like
+        const noise = ctx.createBufferSource();
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.2));
+        noise.buffer = buffer;
+        const noiseGain = ctx.createGain();
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = 3000;
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        noise.connect(hp).connect(noiseGain).connect(ctx.destination);
+        noise.start(now);
+      }
+
+      if (sound === 'teaserMiss') {
+        // Soft descending sigh - "no luck"
+        const sigh = ctx.createOscillator();
+        const sighGain = ctx.createGain();
+        sigh.type = 'sine';
+        sigh.frequency.setValueAtTime(440, now);
+        sigh.frequency.exponentialRampToValueAtTime(165, now + 0.5);
+        sighGain.gain.setValueAtTime(0.08, now);
+        sighGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+        sigh.connect(sighGain).connect(ctx.destination);
+        sigh.start(now);
+        sigh.stop(now + 0.6);
       }
     } catch {
       // Audio not available

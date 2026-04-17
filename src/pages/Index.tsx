@@ -16,6 +16,7 @@ const Index = () => {
   const showBigWin = state.phase === 'idle' && state.totalWin > state.bet * 10 && !state.freeSpin.active;
   const showShake = state.phase === 'idle' && state.totalWin > state.bet * 20;
   const isFreeSpinMode = state.freeSpin.active;
+  const isTeasing = !!state.teaserActive;
 
   // Auto-spin loop
   const spinRef = useRef(spin);
@@ -72,7 +73,14 @@ const Index = () => {
 
       {/* Slot Grid */}
       <div className="w-full flex-1 flex items-center justify-center relative z-10 my-2 sm:my-3">
-        <div className="w-full">
+        <div
+          className="w-full transition-all duration-700 ease-out"
+          style={{
+            transform: isTeasing ? 'scale(1.12)' : 'scale(1)',
+            transformOrigin: '85% center',
+            filter: isTeasing ? 'contrast(1.15) saturate(1.2)' : 'none',
+          }}
+        >
           <SlotGrid
             grid={state.grid}
             winClusters={state.winClusters}
@@ -80,8 +88,26 @@ const Index = () => {
             cascadeCount={state.cascadeCount}
             scatterPositions={state.scatterPositions}
             isFreeSpinMode={isFreeSpinMode}
+            teaserActive={isTeasing}
+            teaserHit={state.teaserHit}
           />
         </div>
+
+        {/* Cinematic teaser vignette */}
+        {isTeasing && (
+          <>
+            <div
+              className="fixed inset-0 pointer-events-none z-30 transition-opacity duration-500"
+              style={{
+                background: 'radial-gradient(ellipse at 85% 50%, transparent 20%, hsl(0 0% 0% / 0.85) 70%)',
+              }}
+            />
+            <div
+              className="fixed inset-0 pointer-events-none z-30 fs-border-glow"
+            />
+          </>
+        )}
+
         <BigWinOverlay amount={state.totalWin} visible={showBigWin} />
       </div>
 

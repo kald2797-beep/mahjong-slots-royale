@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { GameState, Grid, WinCluster, FreeSpinState } from './types';
+import { GameState, Grid, WinCluster, FreeSpinState, SymbolId } from './types';
 import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds } from './engine';
 import { buildForcedGrid, DevForceMode } from './devForce';
 import { useAudio } from './useAudio';
@@ -33,6 +33,8 @@ export function useGameState() {
     phase: 'idle',
     freeSpin: INITIAL_FREE_SPIN,
     scatterPositions: [],
+    teaserActive: false,
+    teaserHit: false,
   });
 
   const autoSpinRef = useRef(false);
@@ -229,6 +231,8 @@ export function useGameState() {
         cascadeCount: 0,
         winClusters: [],
         scatterPositions: [],
+        teaserActive: false,
+        teaserHit: false,
       };
     });
 
@@ -237,13 +241,61 @@ export function useGameState() {
 
     const newGrid = devMode ? buildForcedGrid(devMode) : createGrid();
 
-    setState(s => {
-      if (!s.isSpinning && s.phase !== 'clearing') return s;
-      currentBet = s.bet;
-      return { ...s, grid: newGrid, phase: 'spinning' };
-    });
-    play('reelDrop');
-    await delay(700);
+    // Check for teaser: 2 scatters in first 4 columns -> suspense on column 5
+    const COLS = newGrid.length;
+    const lastCol = COLS - 1;
+    let scattersInEarly = 0;
+    for (let c = 0; c < lastCol; c++) {
+      for (let r = 0; r < newGrid[c].length; r++) {
+        if (newGrid[c][r].symbolId === 8) scattersInEarly++;
+      }
+    }
+    const hasTeaser = scattersInEarly === 2;
+
+    if (hasTeaser) {
+      // Reveal first 4 columns first - hide col 5 by replacing with placeholders
+      const partialGrid = newGrid.map((col, ci) =>
+        ci === lastCol
+          ? col.map(cell => ({ ...cell, symbolId: 7 as SymbolId, _hidden: true }))
+          : col
+      );
+
+      setState(s => {
+        if (!s.isSpinning && s.phase !== 'clearing') return s;
+        currentBet = s.bet;
+        return { ...s, grid: partialGrid as Grid, phase: 'spinning' };
+      });
+      play('reelDrop');
+      await delay(700);
+
+      // TEASER: slow-mo, zoom, tension drone
+      setState(s => ({ ...s, phase: 'teasing', teaserActive: true }));
+      play('teaser');
+      await delay(1600);
+
+      // Drop the real column 5
+      const lastColScatters = newGrid[lastCol].filter(c => c.symbolId === 8).length;
+      const teaserHit = lastColScatters >= 1;
+
+      setState(s => ({
+        ...s,
+        grid: newGrid,
+        phase: 'spinning',
+        teaserHit,
+      }));
+      play(teaserHit ? 'teaserHit' : 'teaserMiss');
+      await delay(900);
+
+      setState(s => ({ ...s, teaserActive: false }));
+    } else {
+      setState(s => {
+        if (!s.isSpinning && s.phase !== 'clearing') return s;
+        currentBet = s.bet;
+        return { ...s, grid: newGrid, phase: 'spinning' };
+      });
+      play('reelDrop');
+      await delay(700);
+    }
 
     // Check for scatters
     const scatters = countScatters(newGrid);
