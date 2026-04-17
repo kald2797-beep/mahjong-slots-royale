@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-type SoundName = 'spin' | 'cascade' | 'win' | 'bigWin' | 'reelDrop' | 'freeSpinTrigger';
+type SoundName = 'spin' | 'cascade' | 'win' | 'bigWin' | 'reelDrop' | 'freeSpinTrigger' | 'teaser' | 'teaserHit' | 'teaserMiss';
 
 function playNote(ctx: AudioContext, freq: number, startTime: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) {
   const osc = ctx.createOscillator();
