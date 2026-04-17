@@ -16,6 +16,7 @@ const Index = () => {
   const showBigWin = state.phase === 'idle' && state.totalWin > state.bet * 10 && !state.freeSpin.active;
   const showShake = state.phase === 'idle' && state.totalWin > state.bet * 20;
   const isFreeSpinMode = state.freeSpin.active;
+  const isTeasing = !!state.teaserActive;
 
   // Auto-spin loop
   const spinRef = useRef(spin);
