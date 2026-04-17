@@ -196,11 +196,13 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
         transition={{
           y: {
             type: 'spring',
-            stiffness: 160,
-            damping: 16,
-            delay: isCascading ? colIndex * 0.02 : rowIndex * 0.07 + colIndex * 0.025,
+            stiffness: 140,
+            damping: 18,
+            delay: isCascading
+              ? colIndex * 0.02
+              : colIndex * 0.18 + rowIndex * 0.05,
           },
-          opacity: { duration: 0.3 },
+          opacity: { duration: 0.3, delay: isCascading ? 0 : colIndex * 0.18 },
           scale: { duration: 0.35, ease: 'backIn' },
           rotate: { duration: 0.35 },
           filter: { duration: 0.3 },
