@@ -26,10 +26,23 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
   const multiplierSteps = isFreeSpinMode ? FREE_SPIN_MULTIPLIER_STEPS : MULTIPLIER_STEPS;
 
   return (
-    <div className={`board-panel rounded-xl p-2 sm:p-3 transition-all duration-500 ${
+    <div className={`board-panel rounded-xl p-2 sm:p-3 transition-all duration-500 relative ${
       isFreeSpinMode ? 'fs-board' : ''
-    }`}>
-      {/* Multiplier strip */}
+    } ${teaserActive ? 'ring-4 ring-primary/60' : ''}`}>
+      {/* Spotlight on last column during teaser */}
+      {teaserActive && (
+        <div
+          className="absolute top-10 bottom-2 pointer-events-none z-20 rounded-lg"
+          style={{
+            left: `calc(${((COLS - 1) / COLS) * 100}% - 4px)`,
+            width: `calc(${100 / COLS}% + 4px)`,
+            background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.15), hsl(38 92% 55% / 0.03))',
+            boxShadow: `0 0 50px ${teaserHit ? 'hsl(38 92% 55% / 0.9)' : 'hsl(38 92% 55% / 0.5)'}, inset 0 0 25px hsl(38 92% 55% / 0.3)`,
+            border: '1px solid hsl(38 92% 55% / 0.6)',
+            animation: 'pulse-glow 0.7s ease-in-out infinite',
+          }}
+        />
+      )}
       <div className="flex justify-center gap-1.5 mb-2">
         {multiplierSteps.map((m, i) => {
           const isActive = cascadeCount > 0 && i <= cascadeCount - 1;
