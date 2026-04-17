@@ -5,6 +5,8 @@ import { TopBar } from '../components/TopBar';
 import { Controls } from '../components/Controls';
 import { BigWinOverlay } from '../components/BigWinOverlay';
 import { FreeSpinOverlay } from '../components/FreeSpinOverlay';
+import { DevPanel } from '../components/DevPanel';
+import { DevForceMode } from '../game/devForce';
 import bgDragonParadise from '../assets/bg-dragon-paradise.jpg';
 
 const Index = () => {
