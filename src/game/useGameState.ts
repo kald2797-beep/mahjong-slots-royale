@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { GameState, Grid, WinCluster, FreeSpinState } from './types';
+import { GameState, Grid, WinCluster, FreeSpinState, SymbolId } from './types';
 import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds } from './engine';
 import { buildForcedGrid, DevForceMode } from './devForce';
 import { useAudio } from './useAudio';
