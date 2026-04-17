@@ -33,6 +33,8 @@ export function useGameState() {
     phase: 'idle',
     freeSpin: INITIAL_FREE_SPIN,
     scatterPositions: [],
+    teaserActive: false,
+    teaserHit: false,
   });
 
   const autoSpinRef = useRef(false);
