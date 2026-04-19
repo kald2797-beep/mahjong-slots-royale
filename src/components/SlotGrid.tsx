@@ -43,8 +43,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
     } ${teaserActive ? 'ring-4 ring-primary/60' : ''}`}>
       {/* Per-column gold spotlight on columns containing scatters — appears AFTER the column lands */}
       {(isSpinning || teaserActive || phase === 'idle') && Array.from(scatterCols).map(ci => {
-        const isLastCol = ci === COLS - 1;
-        const intense = teaserActive && isLastCol;
+        const intense = teaserActive && ci === teaserCol;
         return (
           <div
             key={`scatter-col-${ci}`}
@@ -56,18 +55,17 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
               boxShadow: `0 0 ${intense ? 60 : 35}px hsl(38 92% 55% / ${intense ? 0.85 : 0.55}), inset 0 0 25px hsl(38 92% 55% / 0.3)`,
               border: '1px solid hsl(38 92% 55% / 0.6)',
               animation: 'pulse-glow 0.9s ease-in-out infinite, fade-in 0.3s ease-out backwards',
-              animationDelay: `${ci * COL_REVEAL_DELAY + 0.25}s, ${ci * COL_REVEAL_DELAY + 0.25}s`,
             }}
           />
         );
       })}
 
-      {/* Suspense spotlight on last column during teaser (before scatter drops there) */}
-      {teaserActive && !scatterCols.has(COLS - 1) && (
+      {/* Suspense spotlight on the column being teased (before it drops) */}
+      {teaserActive && teaserCol >= 0 && teaserCol < COLS && !scatterCols.has(teaserCol) && (
         <div
           className="absolute top-10 bottom-2 pointer-events-none z-20 rounded-lg"
           style={{
-            left: `calc(${((COLS - 1) / COLS) * 100}% - 4px)`,
+            left: `calc(${(teaserCol / COLS) * 100}% - 4px)`,
             width: `calc(${100 / COLS}% + 4px)`,
             background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.15), hsl(38 92% 55% / 0.03))',
             boxShadow: `0 0 50px ${teaserHit ? 'hsl(38 92% 55% / 0.9)' : 'hsl(38 92% 55% / 0.5)'}, inset 0 0 25px hsl(38 92% 55% / 0.3)`,
