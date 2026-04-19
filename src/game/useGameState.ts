@@ -247,67 +247,65 @@ export function useGameState() {
     const COLS = newGrid.length;
     const lastCol = COLS - 1;
 
-    // Build a hidden grid (all columns hidden initially)
-    const buildPartial = (revealed: number): Grid =>
+    // Determine if we need a teaser:
+    // Find the earliest column where cumulative scatters reaches 2 — teaser the NEXT column.
+    let teaserCol = -1;
+    {
+      let acc = 0;
+      for (let ci = 0; ci < COLS; ci++) {
+        acc += newGrid[ci].filter(c => c.symbolId === 8).length;
+        if (acc >= 2 && ci < lastCol) {
+          teaserCol = ci + 1;
+          break;
+        }
+      }
+    }
+
+    // Build a partially-hidden grid (cols >= hiddenFrom are hidden)
+    const buildPartial = (hiddenFrom: number): Grid =>
       newGrid.map((col, ci) =>
-        ci < revealed
+        ci < hiddenFrom
           ? col
           : col.map(cell => ({ ...cell, symbolId: 7 as SymbolId, _hidden: true }))
       ) as Grid;
 
-    // Show empty/hidden grid first
-    setState(s => ({ ...s, grid: buildPartial(0), phase: 'spinning', revealedCols: 0 }));
-    await delay(150);
-
-    // Reveal columns one by one with teaser logic
-    let cumulativeScatters = 0;
-    let teasedAlready = false;
-
-    const COLUMN_DROP_DELAY = 380; // time between column drops
-
-    for (let ci = 0; ci < COLS; ci++) {
-      // Reveal this column
-      setState(s => ({ ...s, grid: buildPartial(ci + 1), revealedCols: ci + 1 }));
+    if (teaserCol < 0) {
+      // No teaser — drop the FULL grid at once. SymbolCell handles per-row stagger.
+      setState(s => ({ ...s, grid: newGrid, phase: 'spinning', revealedCols: COLS }));
       play('reelDrop');
-      await delay(COLUMN_DROP_DELAY);
+      await delay(700);
+    } else {
+      // Reveal everything BEFORE the teaser column at once
+      setState(s => ({
+        ...s,
+        grid: buildPartial(teaserCol),
+        phase: 'spinning',
+        revealedCols: teaserCol,
+      }));
+      play('reelDrop');
+      await delay(700);
 
-      // Count scatters in this column
-      const scattersInCol = newGrid[ci].filter(c => c.symbolId === 8).length;
-      cumulativeScatters += scattersInCol;
+      // Hold + tension on the teased column
+      setState(s => ({ ...s, phase: 'teasing', teaserActive: true, teaserCol }));
+      play('teaser');
+      await delay(1600);
 
-      // Trigger teaser: just hit 2 scatters AND there are more columns to reveal
-      if (cumulativeScatters >= 2 && !teasedAlready && ci < lastCol) {
-        teasedAlready = true;
-        const nextCol = ci + 1;
+      // Drop the teased column (and everything after)
+      const nextColScatters = newGrid[teaserCol].filter(c => c.symbolId === 8).length;
+      const teaserHit = nextColScatters >= 1;
 
-        // Pause + zoom + tension on next column
-        setState(s => ({ ...s, phase: 'teasing', teaserActive: true, teaserCol: nextCol }));
-        play('teaser');
-        await delay(1600);
+      setState(s => ({
+        ...s,
+        grid: newGrid,
+        revealedCols: COLS,
+        phase: 'spinning',
+        teaserHit,
+      }));
+      play(teaserHit ? 'teaserHit' : 'teaserMiss');
+      await delay(900);
 
-        // Drop next column slowly (cinematic)
-        const nextColScatters = newGrid[nextCol].filter(c => c.symbolId === 8).length;
-        const teaserHit = nextColScatters >= 1;
-
-        setState(s => ({
-          ...s,
-          grid: buildPartial(nextCol + 1),
-          revealedCols: nextCol + 1,
-          phase: 'spinning',
-          teaserHit,
-        }));
-        play(teaserHit ? 'teaserHit' : 'teaserMiss');
-        await delay(900);
-
-        setState(s => ({ ...s, teaserActive: false, teaserCol: -1 }));
-        cumulativeScatters += nextColScatters;
-        ci = nextCol; // skip; loop will ci++ to nextCol+1
-      }
+      setState(s => ({ ...s, teaserActive: false, teaserCol: -1 }));
     }
-
-    // Ensure final state shows full grid
-    setState(s => ({ ...s, grid: newGrid, phase: 'spinning', revealedCols: COLS }));
-    await delay(200);
 
     // Check for scatters
     const scatters = countScatters(newGrid);
