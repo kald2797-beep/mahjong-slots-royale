@@ -35,6 +35,8 @@ export function useGameState() {
     scatterPositions: [],
     teaserActive: false,
     teaserHit: false,
+    revealedCols: 0,
+    teaserCol: -1,
   });
 
   const autoSpinRef = useRef(false);
@@ -233,6 +235,8 @@ export function useGameState() {
         scatterPositions: [],
         teaserActive: false,
         teaserHit: false,
+        revealedCols: 0,
+        teaserCol: -1,
       };
     });
 
@@ -240,62 +244,70 @@ export function useGameState() {
     await delay(400);
 
     const newGrid = devMode ? buildForcedGrid(devMode) : createGrid();
-
-    // Check for teaser: 2 scatters in first 4 columns -> suspense on column 5
     const COLS = newGrid.length;
     const lastCol = COLS - 1;
-    let scattersInEarly = 0;
-    for (let c = 0; c < lastCol; c++) {
-      for (let r = 0; r < newGrid[c].length; r++) {
-        if (newGrid[c][r].symbolId === 8) scattersInEarly++;
+
+    // Build a hidden grid (all columns hidden initially)
+    const buildPartial = (revealed: number): Grid =>
+      newGrid.map((col, ci) =>
+        ci < revealed
+          ? col
+          : col.map(cell => ({ ...cell, symbolId: 7 as SymbolId, _hidden: true }))
+      ) as Grid;
+
+    // Show empty/hidden grid first
+    setState(s => ({ ...s, grid: buildPartial(0), phase: 'spinning', revealedCols: 0 }));
+    await delay(150);
+
+    // Reveal columns one by one with teaser logic
+    let cumulativeScatters = 0;
+    let teasedAlready = false;
+
+    const COLUMN_DROP_DELAY = 380; // time between column drops
+
+    for (let ci = 0; ci < COLS; ci++) {
+      // Reveal this column
+      setState(s => ({ ...s, grid: buildPartial(ci + 1), revealedCols: ci + 1 }));
+      play('reelDrop');
+      await delay(COLUMN_DROP_DELAY);
+
+      // Count scatters in this column
+      const scattersInCol = newGrid[ci].filter(c => c.symbolId === 8).length;
+      cumulativeScatters += scattersInCol;
+
+      // Trigger teaser: just hit 2 scatters AND there are more columns to reveal
+      if (cumulativeScatters >= 2 && !teasedAlready && ci < lastCol) {
+        teasedAlready = true;
+        const nextCol = ci + 1;
+
+        // Pause + zoom + tension on next column
+        setState(s => ({ ...s, phase: 'teasing', teaserActive: true, teaserCol: nextCol }));
+        play('teaser');
+        await delay(1600);
+
+        // Drop next column slowly (cinematic)
+        const nextColScatters = newGrid[nextCol].filter(c => c.symbolId === 8).length;
+        const teaserHit = nextColScatters >= 1;
+
+        setState(s => ({
+          ...s,
+          grid: buildPartial(nextCol + 1),
+          revealedCols: nextCol + 1,
+          phase: 'spinning',
+          teaserHit,
+        }));
+        play(teaserHit ? 'teaserHit' : 'teaserMiss');
+        await delay(900);
+
+        setState(s => ({ ...s, teaserActive: false, teaserCol: -1 }));
+        cumulativeScatters += nextColScatters;
+        ci = nextCol; // skip; loop will ci++ to nextCol+1
       }
     }
-    const hasTeaser = scattersInEarly === 2;
 
-    if (hasTeaser) {
-      // Reveal first 4 columns first - hide col 5 by replacing with placeholders
-      const partialGrid = newGrid.map((col, ci) =>
-        ci === lastCol
-          ? col.map(cell => ({ ...cell, symbolId: 7 as SymbolId, _hidden: true }))
-          : col
-      );
-
-      setState(s => {
-        if (!s.isSpinning && s.phase !== 'clearing') return s;
-        currentBet = s.bet;
-        return { ...s, grid: partialGrid as Grid, phase: 'spinning' };
-      });
-      play('reelDrop');
-      await delay(700);
-
-      // TEASER: slow-mo, zoom, tension drone
-      setState(s => ({ ...s, phase: 'teasing', teaserActive: true }));
-      play('teaser');
-      await delay(1600);
-
-      // Drop the real column 5
-      const lastColScatters = newGrid[lastCol].filter(c => c.symbolId === 8).length;
-      const teaserHit = lastColScatters >= 1;
-
-      setState(s => ({
-        ...s,
-        grid: newGrid,
-        phase: 'spinning',
-        teaserHit,
-      }));
-      play(teaserHit ? 'teaserHit' : 'teaserMiss');
-      await delay(900);
-
-      setState(s => ({ ...s, teaserActive: false }));
-    } else {
-      setState(s => {
-        if (!s.isSpinning && s.phase !== 'clearing') return s;
-        currentBet = s.bet;
-        return { ...s, grid: newGrid, phase: 'spinning' };
-      });
-      play('reelDrop');
-      await delay(700);
-    }
+    // Ensure final state shows full grid
+    setState(s => ({ ...s, grid: newGrid, phase: 'spinning', revealedCols: COLS }));
+    await delay(200);
 
     // Check for scatters
     const scatters = countScatters(newGrid);

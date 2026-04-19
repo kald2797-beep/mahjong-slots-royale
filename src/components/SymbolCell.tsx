@@ -200,9 +200,9 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
             damping: 18,
             delay: isCascading
               ? colIndex * 0.02
-              : colIndex * 0.18 + rowIndex * 0.05,
+              : rowIndex * 0.04,
           },
-          opacity: { duration: 0.3, delay: isCascading ? 0 : colIndex * 0.18 },
+          opacity: { duration: 0.25, delay: 0 },
           scale: { duration: 0.35, ease: 'backIn' },
           rotate: { duration: 0.35 },
           filter: { duration: 0.3 },

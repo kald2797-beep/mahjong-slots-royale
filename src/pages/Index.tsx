@@ -77,7 +77,13 @@ const Index = () => {
           className="w-full transition-all duration-700 ease-out"
           style={{
             transform: isTeasing ? 'scale(1.12)' : 'scale(1)',
-            transformOrigin: '85% center',
+            transformOrigin: (() => {
+              const tc = state.teaserCol ?? -1;
+              if (tc < 0) return '85% center';
+              // 5 cols => center each col at (col+0.5)/5 * 100%
+              const pct = ((tc + 0.5) / 5) * 100;
+              return `${pct}% center`;
+            })(),
             filter: isTeasing ? 'contrast(1.15) saturate(1.2)' : 'none',
           }}
         >
@@ -90,16 +96,21 @@ const Index = () => {
             isFreeSpinMode={isFreeSpinMode}
             teaserActive={isTeasing}
             teaserHit={state.teaserHit}
+            teaserCol={state.teaserCol ?? -1}
           />
         </div>
 
-        {/* Cinematic teaser vignette */}
+        {/* Cinematic teaser vignette — focuses on the teased column */}
         {isTeasing && (
           <>
             <div
               className="fixed inset-0 pointer-events-none z-30 transition-opacity duration-500"
               style={{
-                background: 'radial-gradient(ellipse at 85% 50%, transparent 20%, hsl(0 0% 0% / 0.85) 70%)',
+                background: (() => {
+                  const tc = state.teaserCol ?? -1;
+                  const pct = tc < 0 ? 85 : ((tc + 0.5) / 5) * 100;
+                  return `radial-gradient(ellipse at ${pct}% 50%, transparent 20%, hsl(0 0% 0% / 0.85) 70%)`;
+                })(),
               }}
             />
             <div
