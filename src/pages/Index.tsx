@@ -90,6 +90,7 @@ const Index = () => {
             isFreeSpinMode={isFreeSpinMode}
             teaserActive={isTeasing}
             teaserHit={state.teaserHit}
+            teaserCol={state.teaserCol ?? -1}
           />
         </div>
 
