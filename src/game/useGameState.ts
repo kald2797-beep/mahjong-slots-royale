@@ -35,6 +35,8 @@ export function useGameState() {
     scatterPositions: [],
     teaserActive: false,
     teaserHit: false,
+    revealedCols: 0,
+    teaserCol: -1,
   });
 
   const autoSpinRef = useRef(false);
