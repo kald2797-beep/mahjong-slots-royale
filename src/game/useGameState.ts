@@ -275,15 +275,18 @@ export function useGameState() {
       play('reelDrop');
       await delay(700);
     } else {
-      // Reveal everything BEFORE the teaser column at once
-      setState(s => ({
-        ...s,
-        grid: buildPartial(teaserCol),
-        phase: 'spinning',
-        revealedCols: teaserCol,
-      }));
-      play('reelDrop');
-      await delay(700);
+      // Reveal columns BEFORE the teaser column ONE BY ONE for suspense
+      const COLUMN_DROP_DELAY = 380;
+      for (let ci = 0; ci < teaserCol; ci++) {
+        setState(s => ({
+          ...s,
+          grid: buildPartial(ci + 1),
+          phase: 'spinning',
+          revealedCols: ci + 1,
+        }));
+        play('reelDrop');
+        await delay(COLUMN_DROP_DELAY);
+      }
 
       // Hold + tension on the teased column
       setState(s => ({ ...s, phase: 'teasing', teaserActive: true, teaserCol }));
