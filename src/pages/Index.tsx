@@ -102,8 +102,8 @@ const Index = () => {
               style={{
                 background: (() => {
                   const tc = state.teaserCol ?? -1;
-                  const pct = tc < 0 ? 85 : ((tc + 0.5) / 5) * 100;
-                  return `radial-gradient(ellipse at ${pct}% 50%, transparent 20%, hsl(0 0% 0% / 0.85) 70%)`;
+                  const pct = tc < 0 ? 50 : ((tc + 0.5) / 5) * 100;
+                  return `radial-gradient(ellipse 75% 60% at ${pct}% 50%, transparent 30%, hsl(0 0% 0% / 0.78) 80%)`;
                 })(),
               }}
             />
