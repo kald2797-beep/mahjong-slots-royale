@@ -68,4 +68,6 @@ export interface GameState {
   scatterPositions: [number, number][];
   teaserActive?: boolean;
   teaserHit?: boolean;
+  revealedCols?: number; // number of columns currently revealed (for column-by-column drop)
+  teaserCol?: number; // which column is currently being teased
 }
