@@ -107,6 +107,12 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
 
 export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
+  const isHidden = (cell as any)._hidden === true;
+
+  // Hidden cell — render nothing (empty slot before reveal)
+  if (isHidden) {
+    return <div className="aspect-square rounded-lg bg-black/20" />;
+  }
 
   if (isClearing) {
     return (
