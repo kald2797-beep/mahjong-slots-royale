@@ -76,15 +76,9 @@ const Index = () => {
         <div
           className="w-full transition-all duration-700 ease-out"
           style={{
-            transform: isTeasing ? 'scale(1.12)' : 'scale(1)',
-            transformOrigin: (() => {
-              const tc = state.teaserCol ?? -1;
-              if (tc < 0) return '85% center';
-              // 5 cols => center each col at (col+0.5)/5 * 100%
-              const pct = ((tc + 0.5) / 5) * 100;
-              return `${pct}% center`;
-            })(),
-            filter: isTeasing ? 'contrast(1.15) saturate(1.2)' : 'none',
+            transform: isTeasing ? 'scale(1.06)' : 'scale(1)',
+            transformOrigin: 'center center',
+            filter: isTeasing ? 'contrast(1.12) saturate(1.15)' : 'none',
           }}
         >
           <SlotGrid
@@ -108,8 +102,8 @@ const Index = () => {
               style={{
                 background: (() => {
                   const tc = state.teaserCol ?? -1;
-                  const pct = tc < 0 ? 85 : ((tc + 0.5) / 5) * 100;
-                  return `radial-gradient(ellipse at ${pct}% 50%, transparent 20%, hsl(0 0% 0% / 0.85) 70%)`;
+                  const pct = tc < 0 ? 50 : ((tc + 0.5) / 5) * 100;
+                  return `radial-gradient(ellipse 75% 60% at ${pct}% 50%, transparent 30%, hsl(0 0% 0% / 0.78) 80%)`;
                 })(),
               }}
             />
