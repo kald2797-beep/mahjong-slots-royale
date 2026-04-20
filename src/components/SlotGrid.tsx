@@ -11,9 +11,10 @@ interface SlotGridProps {
   teaserActive?: boolean;
   teaserHit?: boolean;
   teaserCol?: number;
+  scatterCelebrate?: boolean;
 }
 
-export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositions = [], isFreeSpinMode = false, teaserActive = false, teaserHit = false, teaserCol = -1 }: SlotGridProps) {
+export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositions = [], isFreeSpinMode = false, teaserActive = false, teaserHit = false, teaserCol = -1, scatterCelebrate = false }: SlotGridProps) {
   const winningPositions = new Set<string>();
   winClusters.forEach(c => c.positions.forEach(([col, row]) => winningPositions.add(`${col},${row}`)));
 
@@ -132,6 +133,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
                   isScatterHighlight={isScatterHighlight}
                   isGoldenWild={cell.isGoldenWild}
                   isTeaserDrop={teaserActive && col === teaserCol}
+                  isScatterCelebrate={scatterCelebrate && isScatterHighlight}
                 />
               );
             })

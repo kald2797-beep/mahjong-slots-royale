@@ -14,6 +14,7 @@ interface SymbolCellProps {
   isScatterHighlight?: boolean;
   isGoldenWild?: boolean;
   isTeaserDrop?: boolean;
+  isScatterCelebrate?: boolean;
 }
 
 const CELL_HEIGHT = 80;
@@ -106,7 +107,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
   );
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop, isScatterCelebrate }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
 
@@ -247,7 +248,28 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
             }}
           />
         )}
-        <SymbolIcon symbolId={cell.symbolId} />
+        {isScatterCelebrate ? (
+          <motion.div
+            className="w-full h-full flex items-center justify-center"
+            animate={{
+              scale: [1, 1.45, 1.25, 1.55, 1.3, 1.6],
+              rotate: [0, -12, 12, -10, 10, 0],
+              filter: [
+                'drop-shadow(0 0 0px hsl(280 80% 60% / 0))',
+                'drop-shadow(0 0 12px hsl(280 80% 60% / 0.9))',
+                'drop-shadow(0 0 18px hsl(38 92% 55% / 0.9))',
+                'drop-shadow(0 0 22px hsl(280 80% 60% / 1))',
+                'drop-shadow(0 0 18px hsl(38 92% 55% / 0.9))',
+                'drop-shadow(0 0 28px hsl(280 80% 60% / 1))',
+              ],
+            }}
+            transition={{ duration: 1.7, ease: 'easeInOut', times: [0, 0.18, 0.36, 0.55, 0.75, 1] }}
+          >
+            <SymbolIcon symbolId={cell.symbolId} />
+          </motion.div>
+        ) : (
+          <SymbolIcon symbolId={cell.symbolId} />
+        )}
       </motion.div>
     </div>
   );

@@ -66,8 +66,9 @@ export interface GameState {
   phase: 'idle' | 'clearing' | 'spinning' | 'revealing' | 'exploding' | 'cascading' | 'settling' | 'teasing';
   freeSpin: FreeSpinState;
   scatterPositions: [number, number][];
+  scatterCelebrate?: boolean;
   teaserActive?: boolean;
   teaserHit?: boolean;
-  revealedCols?: number; // number of columns currently revealed (for column-by-column drop)
-  teaserCol?: number; // which column is currently being teased
+  revealedCols?: number;
+  teaserCol?: number;
 }

@@ -91,6 +91,7 @@ const Index = () => {
             teaserActive={isTeasing}
             teaserHit={state.teaserHit}
             teaserCol={state.teaserCol ?? -1}
+            scatterCelebrate={state.scatterCelebrate}
           />
         </div>
 
