@@ -270,10 +270,19 @@ export function useGameState() {
       ) as Grid;
 
     if (teaserCol < 0) {
-      // No teaser — drop the FULL grid at once. SymbolCell handles per-row stagger.
-      setState(s => ({ ...s, grid: newGrid, phase: 'spinning', revealedCols: COLS }));
-      play('reelDrop');
-      await delay(700);
+      // No teaser — stream columns in left→right, snappy stop per column
+      const COLUMN_DROP_DELAY = 110;
+      for (let ci = 0; ci < COLS; ci++) {
+        setState(s => ({
+          ...s,
+          grid: buildPartial(ci + 1),
+          phase: 'spinning',
+          revealedCols: ci + 1,
+        }));
+        play('reelDrop');
+        await delay(COLUMN_DROP_DELAY);
+      }
+      await delay(220);
     } else {
       // Reveal columns BEFORE the teaser column ONE BY ONE for suspense
       const COLUMN_DROP_DELAY = 380;

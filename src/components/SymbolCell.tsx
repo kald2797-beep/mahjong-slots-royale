@@ -13,6 +13,7 @@ interface SymbolCellProps {
   rowIndex: number;
   isScatterHighlight?: boolean;
   isGoldenWild?: boolean;
+  isTeaserDrop?: boolean;
 }
 
 const CELL_HEIGHT = 80;
@@ -105,7 +106,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
   );
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
 
@@ -200,15 +201,24 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
             : 'brightness(1)',
         }}
         transition={{
-          y: {
-            type: 'spring',
-            stiffness: 140,
-            damping: 18,
-            delay: isCascading
-              ? colIndex * 0.02
-              : rowIndex * 0.04,
-          },
-          opacity: { duration: 0.25, delay: 0 },
+          y: isTeaserDrop
+            ? {
+                // Heavy impact + soft bouncing oscillation, like an object hitting the floor
+                type: 'spring',
+                stiffness: 320,
+                damping: 7,
+                mass: 1.4,
+                delay: rowIndex * 0.025,
+                restDelta: 0.2,
+              }
+            : {
+                type: 'spring',
+                stiffness: 220,
+                damping: 16,
+                mass: 0.9,
+                delay: isCascading ? colIndex * 0.02 : rowIndex * 0.035,
+              },
+          opacity: { duration: 0.18, delay: 0 },
           scale: { duration: 0.35, ease: 'backIn' },
           rotate: { duration: 0.35 },
           filter: { duration: 0.3 },
