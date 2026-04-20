@@ -54,7 +54,7 @@ export const DEFAULT_RTP_CONFIG: RtpConfig = {
   payouts:         [5, 3, 4, 2, 1.5, 1, 0.8, 0.5, 0, 0],
   multiplierSteps:         [1, 2, 3, 5, 10, 15, 25],
   freeSpinMultiplierSteps: [2, 4, 6, 10, 15, 25, 50],
-  payoutFactor: 0.1,
+  payoutFactor: 0.4755,
   freeSpinTrigger: [
     { count: 5, spins: 15 },
     { count: 4, spins: 12 },
