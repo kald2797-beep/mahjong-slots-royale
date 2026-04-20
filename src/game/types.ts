@@ -65,7 +65,7 @@ export interface GameState {
   winClusters: WinCluster[];
   phase: 'idle' | 'clearing' | 'spinning' | 'revealing' | 'exploding' | 'cascading' | 'settling' | 'teasing';
   freeSpin: FreeSpinState;
-  scatterPositions: [][];
+  scatterPositions: [number, number][];
   scatterCelebrate?: boolean;
   teaserActive?: boolean;
   teaserHit?: boolean;
