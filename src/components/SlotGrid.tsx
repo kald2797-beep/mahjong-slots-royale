@@ -133,6 +133,7 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
                   isScatterHighlight={isScatterHighlight}
                   isGoldenWild={cell.isGoldenWild}
                   isTeaserDrop={teaserActive && col === teaserCol}
+                  isScatterCelebrate={scatterCelebrate && isScatterHighlight}
                 />
               );
             })
