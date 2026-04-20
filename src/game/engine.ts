@@ -86,12 +86,12 @@ export function findClusters(grid: Grid): WinCluster[] {
         }
       }
 
-      if (positions.length >= 5) {
-        const sym = SYMBOLS[symbolId];
+      if (positions.length >= getRtpConfig().minClusterSize) {
+        const payouts = getRtpConfig().payouts;
         clusters.push({
           positions,
           symbolId,
-          payout: positions.length * sym.payout,
+          payout: positions.length * payouts[symbolId],
         });
       }
     }
@@ -169,25 +169,27 @@ export function transformToGoldenWilds(grid: Grid, clusters: WinCluster[]): Grid
 }
 
 export function getMultiplier(cascadeCount: number, isFreeSpins = false): number {
-  const steps = isFreeSpins ? FREE_SPIN_MULTIPLIER_STEPS : MULTIPLIER_STEPS;
+  const cfg = getRtpConfig();
+  const steps = isFreeSpins ? cfg.freeSpinMultiplierSteps : cfg.multiplierSteps;
   const idx = Math.min(cascadeCount, steps.length - 1);
   return steps[idx];
 }
 
 export function calculateWin(clusters: WinCluster[], bet: number, multiplier: number): number {
   const totalPayout = clusters.reduce((sum, c) => sum + c.payout, 0);
-  return totalPayout * bet * multiplier * 0.1;
+  return totalPayout * bet * multiplier * getRtpConfig().payoutFactor;
 }
 
 export function getFreeSpinCount(scatterCount: number): number {
-  if (scatterCount >= 5) return 15;
-  if (scatterCount >= 4) return 12;
-  if (scatterCount >= 3) return 10;
+  for (const t of getRtpConfig().freeSpinTrigger) {
+    if (scatterCount >= t.count) return t.spins;
+  }
   return 0;
 }
 
 export function getRetriggerSpins(scatterCount: number): number {
-  if (scatterCount >= 3) return 5;
-  if (scatterCount >= 2) return 3;
+  for (const t of getRtpConfig().retriggerTable) {
+    if (scatterCount >= t.count) return t.spins;
+  }
   return 0;
 }
