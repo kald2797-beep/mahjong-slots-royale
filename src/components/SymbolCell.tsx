@@ -14,6 +14,7 @@ interface SymbolCellProps {
   isScatterHighlight?: boolean;
   isGoldenWild?: boolean;
   isTeaserDrop?: boolean;
+  isScatterCelebrate?: boolean;
 }
 
 const CELL_HEIGHT = 80;
@@ -106,7 +107,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
   );
 }
 
-export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop }: SymbolCellProps) {
+export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop, isScatterCelebrate }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
 
