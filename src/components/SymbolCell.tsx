@@ -109,9 +109,9 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
 
-  // Hidden cell — render nothing (empty slot before reveal)
+  // Hidden cell — render nothing (completely invisible, no placeholder)
   if (isHidden) {
-    return <div className="aspect-square rounded-lg bg-black/20" />;
+    return <div className="aspect-square" />;
   }
 
   if (isClearing) {
