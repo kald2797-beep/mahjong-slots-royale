@@ -1,22 +1,12 @@
-import { SymbolId, SYMBOLS, COLS, ROWS, Grid, CellState, WinCluster, MULTIPLIER_STEPS, FREE_SPIN_MULTIPLIER_STEPS } from './types';
+import { SymbolId, SYMBOLS, COLS, ROWS, Grid, CellState, WinCluster } from './types';
+import { getRtpConfig } from './rtpConfig';
 
 let keyCounter = 0;
 const nextKey = () => ++keyCounter;
 
 export function randomSymbol(isFreeSpins = false): SymbolId {
-  if (isFreeSpins) {
-    // Higher chance of high-value symbols, no scatter in free spins grid fill
-    const weights = [5, 7, 6, 10, 12, 14, 14, 16, 0, 2]; // wild can appear
-    const total = weights.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
-    for (let i = 0; i < weights.length; i++) {
-      r -= weights[i];
-      if (r <= 0) return i as SymbolId;
-    }
-    return 7;
-  }
-  // Base game weights — scatter (8) has small chance
-  const weights = [3, 5, 4, 8, 10, 14, 16, 20, 1.5, 0]; // no wild in base
+  const cfg = getRtpConfig();
+  const weights = isFreeSpins ? cfg.freeSpinWeights : cfg.baseWeights;
   const total = weights.reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
   for (let i = 0; i < weights.length; i++) {
