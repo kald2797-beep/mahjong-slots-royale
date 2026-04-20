@@ -203,13 +203,13 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
         transition={{
           y: isTeaserDrop
             ? {
-                // Heavy impact + soft bouncing oscillation, like an object hitting the floor
+                // Heavy slam + tight punchy bounce — solid block hitting the floor
                 type: 'spring',
-                stiffness: 320,
-                damping: 7,
-                mass: 1.4,
-                delay: rowIndex * 0.025,
-                restDelta: 0.2,
+                stiffness: 700,
+                damping: 13,
+                mass: 1.8,
+                delay: rowIndex * 0.02,
+                restDelta: 0.3,
               }
             : {
                 type: 'spring',
