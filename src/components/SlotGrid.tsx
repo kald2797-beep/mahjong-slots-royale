@@ -41,39 +41,6 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
     <div className={`board-panel rounded-xl p-2 sm:p-3 transition-all duration-500 relative ${
       isFreeSpinMode ? 'fs-board' : ''
     } ${teaserActive ? 'ring-4 ring-primary/60' : ''}`}>
-      {/* Per-column gold spotlight on columns containing scatters — appears AFTER the column lands */}
-      {(isSpinning || teaserActive || phase === 'idle') && Array.from(scatterCols).map(ci => {
-        const intense = teaserActive && ci === teaserCol;
-        return (
-          <div
-            key={`scatter-col-${ci}`}
-            className="absolute top-10 bottom-2 pointer-events-none z-20 rounded-lg"
-            style={{
-              left: `calc(${(ci / COLS) * 100}% + 2px)`,
-              width: `calc(${100 / COLS}% - 4px)`,
-              background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.18), hsl(38 92% 55% / 0.04))',
-              boxShadow: `0 0 ${intense ? 60 : 35}px hsl(38 92% 55% / ${intense ? 0.85 : 0.55}), inset 0 0 25px hsl(38 92% 55% / 0.3)`,
-              border: '1px solid hsl(38 92% 55% / 0.6)',
-              animation: 'pulse-glow 0.9s ease-in-out infinite, fade-in 0.3s ease-out backwards',
-            }}
-          />
-        );
-      })}
-
-      {/* Suspense spotlight on the column being teased (before it drops) */}
-      {teaserActive && teaserCol >= 0 && teaserCol < COLS && !scatterCols.has(teaserCol) && (
-        <div
-          className="absolute top-10 bottom-2 pointer-events-none z-20 rounded-lg"
-          style={{
-            left: `calc(${(teaserCol / COLS) * 100}% - 4px)`,
-            width: `calc(${100 / COLS}% + 4px)`,
-            background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.15), hsl(38 92% 55% / 0.03))',
-            boxShadow: `0 0 50px ${teaserHit ? 'hsl(38 92% 55% / 0.9)' : 'hsl(38 92% 55% / 0.5)'}, inset 0 0 25px hsl(38 92% 55% / 0.3)`,
-            border: '1px solid hsl(38 92% 55% / 0.6)',
-            animation: 'pulse-glow 0.7s ease-in-out infinite',
-          }}
-        />
-      )}
       <div className="flex justify-center gap-1.5 mb-2">
         {multiplierSteps.map((m, i) => {
           const isActive = cascadeCount > 0 && i <= cascadeCount - 1;
@@ -103,36 +70,73 @@ export function SlotGrid({ grid, winClusters, phase, cascadeCount, scatterPositi
         })}
       </div>
 
-      {/* Grid */}
-      <div
-        className="grid gap-1 sm:gap-1.5 overflow-hidden"
-        style={{
-          gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-          gridTemplateRows: `repeat(${ROWS}, 1fr)`,
-        }}
-      >
-        {Array.from({ length: ROWS }, (_, row) =>
-          Array.from({ length: COLS }, (_, col) => {
-            const cell = grid[col][row];
-            const posKey = `${col},${row}`;
-            const isScatterHighlight = scatterSet.has(posKey);
-            return (
-              <SymbolCell
-                key={`${cell.key}-${isClearing ? 'c' : 'd'}`}
-                cell={cell}
-                isWinning={winningPositions.has(posKey)}
-                isExploding={isExploding}
-                isClearing={isClearing}
-                isCascading={isCascading}
-                colIndex={col}
-                rowIndex={row}
-                isScatterHighlight={isScatterHighlight}
-                isGoldenWild={cell.isGoldenWild}
-                isTeaserDrop={teaserActive && col === teaserCol}
-              />
-            );
-          })
+      {/* Grid wrapper (relative so spotlights align exactly with cell columns) */}
+      <div className="relative">
+        {/* Per-column gold spotlight on columns containing scatters */}
+        {(isSpinning || teaserActive || phase === 'idle') && Array.from(scatterCols).map(ci => {
+          const intense = teaserActive && ci === teaserCol;
+          return (
+            <div
+              key={`scatter-col-${ci}`}
+              className="absolute -top-1 -bottom-1 pointer-events-none z-20 rounded-lg"
+              style={{
+                left: `calc((100% - (${COLS - 1} * 0.375rem)) / ${COLS} * ${ci} + 0.375rem * ${ci})`,
+                width: `calc((100% - (${COLS - 1} * 0.375rem)) / ${COLS})`,
+                background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.18), hsl(38 92% 55% / 0.04))',
+                boxShadow: `0 0 ${intense ? 60 : 35}px hsl(38 92% 55% / ${intense ? 0.85 : 0.55}), inset 0 0 25px hsl(38 92% 55% / 0.3)`,
+                border: '1px solid hsl(38 92% 55% / 0.6)',
+                animation: 'pulse-glow 0.9s ease-in-out infinite, fade-in 0.3s ease-out backwards',
+              }}
+            />
+          );
+        })}
+
+        {/* Suspense spotlight on the column being teased (before it drops) */}
+        {teaserActive && teaserCol >= 0 && teaserCol < COLS && !scatterCols.has(teaserCol) && (
+          <div
+            className="absolute -top-1 -bottom-1 pointer-events-none z-20 rounded-lg"
+            style={{
+              left: `calc((100% - (${COLS - 1} * 0.375rem)) / ${COLS} * ${teaserCol} + 0.375rem * ${teaserCol})`,
+              width: `calc((100% - (${COLS - 1} * 0.375rem)) / ${COLS})`,
+              background: 'linear-gradient(180deg, hsl(38 92% 55% / 0.15), hsl(38 92% 55% / 0.03))',
+              boxShadow: `0 0 50px ${teaserHit ? 'hsl(38 92% 55% / 0.9)' : 'hsl(38 92% 55% / 0.5)'}, inset 0 0 25px hsl(38 92% 55% / 0.3)`,
+              border: '1px solid hsl(38 92% 55% / 0.6)',
+              animation: 'pulse-glow 0.7s ease-in-out infinite',
+            }}
+          />
         )}
+
+        {/* Grid */}
+        <div
+          className="grid gap-1.5 overflow-hidden"
+          style={{
+            gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+            gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+          }}
+        >
+          {Array.from({ length: ROWS }, (_, row) =>
+            Array.from({ length: COLS }, (_, col) => {
+              const cell = grid[col][row];
+              const posKey = `${col},${row}`;
+              const isScatterHighlight = scatterSet.has(posKey);
+              return (
+                <SymbolCell
+                  key={`${cell.key}-${isClearing ? 'c' : 'd'}`}
+                  cell={cell}
+                  isWinning={winningPositions.has(posKey)}
+                  isExploding={isExploding}
+                  isClearing={isClearing}
+                  isCascading={isCascading}
+                  colIndex={col}
+                  rowIndex={row}
+                  isScatterHighlight={isScatterHighlight}
+                  isGoldenWild={cell.isGoldenWild}
+                  isTeaserDrop={teaserActive && col === teaserCol}
+                />
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
