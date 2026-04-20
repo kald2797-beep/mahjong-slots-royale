@@ -322,10 +322,12 @@ export function useGameState() {
     // Check for scatters
     const scatters = countScatters(newGrid);
     if (scatters.length >= 3) {
-      // Show scatter highlight
-      setState(s => ({ ...s, scatterPositions: scatters }));
+      // Scatter celebration: wiggle + grow before cutscene
+      setState(s => ({ ...s, scatterPositions: scatters, scatterCelebrate: true }));
       play('bigWin');
-      await delay(1200);
+      await delay(1800);
+      setState(s => ({ ...s, scatterCelebrate: false }));
+      await delay(150);
 
       const freeSpinCount = getFreeSpinCount(scatters.length);
 
