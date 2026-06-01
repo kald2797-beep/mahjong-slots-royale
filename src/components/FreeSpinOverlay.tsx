@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FreeSpinState } from '../game/types';
+import scrollBg from '../assets/scroll-bg.png';
 
 interface FreeSpinOverlayProps {
   freeSpin: FreeSpinState;
@@ -283,17 +284,8 @@ export function FreeSpinOverlay({ freeSpin }: FreeSpinOverlayProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center px-6 overflow-hidden"
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 overflow-hidden pointer-events-none"
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.92 }}
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(ellipse at center, ${RED_RICH} 0%, ${RED_DEEP} 55%, hsl(0 80% 6%) 100%)`,
-            }}
-          />
-
           {/* Gold coin rain (with 元 character) */}
           {Array.from({ length: 24 }, (_, i) => (
             <motion.div
@@ -320,36 +312,21 @@ export function FreeSpinOverlay({ freeSpin }: FreeSpinOverlayProps) {
             </motion.div>
           ))}
 
-          {/* Scroll card */}
+          {/* Scroll card with image background */}
           <motion.div
             initial={{ scale: 0.6, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 180, damping: 16 }}
-            className="relative z-10 w-full max-w-sm"
+            className="relative z-10 w-full max-w-md"
+            style={{
+              aspectRatio: '1265 / 800',
+              backgroundImage: `url(${scrollBg})`,
+              backgroundSize: '100% 100%',
+              backgroundRepeat: 'no-repeat',
+              filter: `drop-shadow(0 12px 30px hsl(0 0% 0% / 0.6))`,
+            }}
           >
-            {/* Top scroll roller */}
-            <div
-              className="h-3 rounded-full mx-1"
-              style={{
-                background: `linear-gradient(180deg, hsl(20 50% 35%), hsl(20 60% 22%))`,
-                boxShadow: `0 2px 4px hsl(0 0% 0% / 0.5), inset 0 1px 0 ${GOLD}66`,
-              }}
-            />
-            <div
-              className="px-6 py-7 text-center relative"
-              style={{
-                background: `linear-gradient(180deg, ${PAPER}, hsl(38 50% 82%))`,
-                borderLeft: `3px solid hsl(20 60% 30%)`,
-                borderRight: `3px solid hsl(20 60% 30%)`,
-                boxShadow: `inset 0 0 30px hsl(38 50% 70% / 0.6)`,
-              }}
-            >
-              {/* Decorative corner brackets */}
-              <div className="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2" style={{ borderColor: RED_RICH }} />
-              <div className="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2" style={{ borderColor: RED_RICH }} />
-              <div className="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2" style={{ borderColor: RED_RICH }} />
-              <div className="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2" style={{ borderColor: RED_RICH }} />
-
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-12 py-10">
               <div
                 className="font-display text-3xl font-black mb-1"
                 style={{ color: RED_RICH, letterSpacing: '0.15em' }}
@@ -357,25 +334,25 @@ export function FreeSpinOverlay({ freeSpin }: FreeSpinOverlayProps) {
                 恭 喜
               </div>
               <div
-                className="font-display text-sm font-bold uppercase tracking-[0.3em] mb-4"
+                className="font-display text-xs font-bold uppercase tracking-[0.3em] mb-2"
                 style={{ color: 'hsl(20 60% 25%)' }}
               >
                 Congratulations
               </div>
 
               <div
-                className="mx-auto w-16 h-px mb-4"
+                className="mx-auto w-16 h-px mb-2"
                 style={{ background: `linear-gradient(90deg, transparent, ${RED_RICH}, transparent)` }}
               />
 
-              <div className="text-xs uppercase tracking-wider mb-1" style={{ color: 'hsl(20 50% 30%)' }}>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: 'hsl(20 50% 30%)' }}>
                 Total Win · 總贏
               </div>
               <motion.div
                 initial={{ scale: 0.5 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 12, delay: 0.4 }}
-                className="font-display text-5xl font-black my-2"
+                className="font-display text-4xl font-black my-1"
                 style={{
                   background: `linear-gradient(180deg, ${GOLD_LIGHT}, ${GOLD} 50%, hsl(38 80% 40%))`,
                   WebkitBackgroundClip: 'text',
@@ -387,29 +364,21 @@ export function FreeSpinOverlay({ freeSpin }: FreeSpinOverlayProps) {
               </motion.div>
 
               <div
-                className="inline-block mt-3 px-4 py-1 rounded-md"
+                className="inline-block mt-1 px-3 py-0.5 rounded-md"
                 style={{
                   background: `linear-gradient(180deg, ${RED_RICH}, ${RED_DEEP})`,
                   border: `1px solid ${GOLD}`,
                 }}
               >
-                <span className="text-xs font-bold" style={{ color: GOLD_LIGHT }}>
+                <span className="text-[10px] font-bold" style={{ color: GOLD_LIGHT }}>
                   Max Multiplier · x{freeSpin.multiplier}
                 </span>
               </div>
 
-              <div className="mt-4 text-[10px] tracking-[0.3em]" style={{ color: 'hsl(20 50% 35%)' }}>
+              <div className="mt-2 text-[10px] tracking-[0.3em]" style={{ color: 'hsl(20 50% 35%)' }}>
                 — 大 吉 大 利 —
               </div>
             </div>
-            {/* Bottom scroll roller */}
-            <div
-              className="h-3 rounded-full mx-1"
-              style={{
-                background: `linear-gradient(180deg, hsl(20 60% 22%), hsl(20 50% 35%))`,
-                boxShadow: `0 -2px 4px hsl(0 0% 0% / 0.5), inset 0 -1px 0 ${GOLD}66`,
-              }}
-            />
           </motion.div>
         </motion.div>
       )}
