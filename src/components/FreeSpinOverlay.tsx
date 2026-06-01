@@ -5,251 +5,412 @@ interface FreeSpinOverlayProps {
   freeSpin: FreeSpinState;
 }
 
+// Chinese-themed palette
+const RED_DEEP = 'hsl(0 70% 22%)';
+const RED_RICH = 'hsl(0 75% 38%)';
+const GOLD = 'hsl(42 95% 58%)';
+const GOLD_LIGHT = 'hsl(48 100% 72%)';
+const PAPER = 'hsl(38 55% 88%)';
+
 export function FreeSpinOverlay({ freeSpin }: FreeSpinOverlayProps) {
   if (freeSpin.phase === 'inactive') return null;
 
   return (
     <AnimatePresence>
-      {/* Intro Animation */}
+      {/* ============ INTRO ============ */}
       {freeSpin.phase === 'intro' && (
         <motion.div
           key="fs-intro"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
         >
-          {/* Dark overlay */}
+          {/* Deep red backdrop with vignette */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.85 }}
-            className="absolute inset-0 bg-black"
+            animate={{ opacity: 0.92 }}
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse at center, ${RED_RICH} 0%, ${RED_DEEP} 55%, hsl(0 80% 8%) 100%)`,
+            }}
           />
 
-          {/* Lightning flashes */}
+          {/* Golden radial burst */}
           <motion.div
             className="absolute inset-0"
             animate={{
               background: [
-                'radial-gradient(ellipse at 50% 50%, hsl(280 80% 60% / 0) 0%, transparent 100%)',
-                'radial-gradient(ellipse at 50% 50%, hsl(280 80% 60% / 0.3) 0%, transparent 100%)',
-                'radial-gradient(ellipse at 50% 50%, hsl(280 80% 60% / 0) 0%, transparent 100%)',
-                'radial-gradient(ellipse at 50% 50%, hsl(38 92% 55% / 0.4) 0%, transparent 100%)',
-                'radial-gradient(ellipse at 50% 50%, hsl(38 92% 55% / 0) 0%, transparent 100%)',
+                `radial-gradient(circle at 50% 50%, ${GOLD}33 0%, transparent 30%)`,
+                `radial-gradient(circle at 50% 50%, ${GOLD}66 0%, transparent 55%)`,
+                `radial-gradient(circle at 50% 50%, ${GOLD}33 0%, transparent 35%)`,
               ],
             }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* Particle ring */}
-          {Array.from({ length: 20 }, (_, i) => {
-            const angle = (360 / 20) * i;
+          {/* Sun-ray spokes */}
+          <motion.div
+            className="absolute"
+            style={{
+              width: '180vmax',
+              height: '180vmax',
+              background: `repeating-conic-gradient(from 0deg, ${GOLD}22 0deg 6deg, transparent 6deg 18deg)`,
+              maskImage: 'radial-gradient(circle, black 10%, transparent 65%)',
+              WebkitMaskImage: 'radial-gradient(circle, black 10%, transparent 65%)',
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+          />
+
+          {/* Floating lanterns */}
+          {Array.from({ length: 8 }, (_, i) => (
+            <motion.div
+              key={`lantern-${i}`}
+              className="absolute text-4xl sm:text-5xl"
+              style={{ left: `${10 + i * 11}%`, filter: `drop-shadow(0 0 12px ${GOLD})` }}
+              initial={{ y: '110vh', opacity: 0 }}
+              animate={{ y: '-20vh', opacity: [0, 1, 1, 0] }}
+              transition={{
+                duration: 6 + Math.random() * 3,
+                delay: i * 0.25,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            >
+              🏮
+            </motion.div>
+          ))}
+
+          {/* Gold petal particles ring */}
+          {Array.from({ length: 24 }, (_, i) => {
+            const angle = (360 / 24) * i;
             const rad = (angle * Math.PI) / 180;
             return (
               <motion.div
                 key={i}
-                className="absolute w-2 h-2 rounded-full"
+                className="absolute w-1.5 h-3 rounded-full"
                 style={{
-                  background: i % 2 === 0
-                    ? 'hsl(38 92% 55%)'
-                    : 'hsl(280 80% 60%)',
-                  boxShadow: `0 0 8px ${i % 2 === 0 ? 'hsl(38 92% 55%)' : 'hsl(280 80% 60%)'}`,
+                  background: `linear-gradient(180deg, ${GOLD_LIGHT}, ${GOLD})`,
+                  boxShadow: `0 0 8px ${GOLD}`,
                   top: '50%',
                   left: '50%',
                 }}
                 animate={{
-                  x: [0, Math.cos(rad) * 150, Math.cos(rad) * 120],
-                  y: [0, Math.sin(rad) * 150, Math.sin(rad) * 120],
-                  scale: [0, 1.5, 1],
-                  opacity: [0, 1, 0.6],
+                  x: [0, Math.cos(rad) * 180, Math.cos(rad) * 150],
+                  y: [0, Math.sin(rad) * 180, Math.sin(rad) * 150],
+                  scale: [0, 1.4, 1],
+                  opacity: [0, 1, 0.7],
+                  rotate: angle + 90,
                 }}
-                transition={{
-                  duration: 1.5,
-                  delay: i * 0.03,
-                  ease: 'easeOut',
-                }}
+                transition={{ duration: 1.6, delay: i * 0.025, ease: 'easeOut' }}
               />
             );
           })}
 
-          {/* Main text */}
-          <div className="relative z-10 text-center">
+          {/* Center medallion */}
+          <div className="relative z-10 text-center px-6">
+            {/* Chinese character medallion */}
             <motion.div
-              initial={{ scale: 0, rotateY: 180 }}
-              animate={{ scale: 1, rotateY: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 0.3 }}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 180, damping: 14 }}
+              className="mx-auto mb-5 relative"
+              style={{ width: 130, height: 130 }}
             >
-              <div className="font-display text-5xl sm:text-6xl font-black tracking-wider"
+              <div
+                className="absolute inset-0 rounded-full"
                 style={{
-                  background: 'linear-gradient(135deg, #fde047, #f59e0b, #fde047)',
+                  background: `radial-gradient(circle, ${GOLD_LIGHT} 0%, ${GOLD} 60%, hsl(38 70% 35%) 100%)`,
+                  boxShadow: `0 0 40px ${GOLD}, inset 0 0 20px hsl(38 70% 30%)`,
+                  border: `3px solid ${GOLD_LIGHT}`,
+                }}
+              />
+              <div
+                className="absolute inset-2 rounded-full flex items-center justify-center"
+                style={{
+                  background: `radial-gradient(circle, ${RED_RICH}, ${RED_DEEP})`,
+                  border: `2px solid ${GOLD}`,
+                }}
+              >
+                <span
+                  className="text-6xl font-bold"
+                  style={{ color: GOLD_LIGHT, textShadow: `0 0 12px ${GOLD}, 0 2px 0 hsl(0 80% 15%)` }}
+                >
+                  福
+                </span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ scale: 0, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.35 }}
+            >
+              <div
+                className="font-display text-4xl sm:text-5xl font-black tracking-wider"
+                style={{
+                  background: `linear-gradient(180deg, ${GOLD_LIGHT}, ${GOLD} 50%, hsl(38 80% 42%))`,
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 0 20px hsl(38 92% 55% / 0.8))',
-                }}>
-                FREE SPINS!
+                  filter: `drop-shadow(0 2px 0 hsl(0 80% 12%)) drop-shadow(0 0 18px ${GOLD})`,
+                  letterSpacing: '0.08em',
+                }}
+              >
+                FREE SPINS
+              </div>
+              <div
+                className="text-base sm:text-lg mt-1 tracking-[0.4em]"
+                style={{ color: GOLD_LIGHT, textShadow: `0 0 10px ${GOLD}` }}
+              >
+                免 費 旋 轉
               </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mt-4"
+              transition={{ delay: 0.9 }}
+              className="mt-5"
             >
-              <span className="font-display text-3xl sm:text-4xl font-bold"
+              <div
+                className="inline-block px-6 py-2 rounded-md"
                 style={{
-                  background: 'linear-gradient(135deg, #e9d5ff, #a855f7)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 0 10px hsl(280 80% 60% / 0.6))',
-                }}>
-                {freeSpin.totalSpins} Spins
-              </span>
+                  background: `linear-gradient(180deg, ${RED_RICH}, ${RED_DEEP})`,
+                  border: `2px solid ${GOLD}`,
+                  boxShadow: `0 0 18px ${GOLD}66, inset 0 0 12px hsl(0 80% 10%)`,
+                }}
+              >
+                <span
+                  className="font-display text-2xl sm:text-3xl font-black"
+                  style={{ color: GOLD_LIGHT, textShadow: `0 0 8px ${GOLD}` }}
+                >
+                  {freeSpin.totalSpins} SPINS
+                </span>
+              </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="mt-2 text-sm text-yellow-300/80"
+              transition={{ delay: 1.3 }}
+              className="mt-3 text-sm"
+              style={{ color: PAPER }}
             >
-              Multiplier starts at x2 — Never resets!
+              Multiplier x2 · 永 不 重 置 · Never Resets
             </motion.div>
           </div>
         </motion.div>
       )}
 
-      {/* Spinning HUD */}
+      {/* ============ SPINNING HUD ============ */}
       {freeSpin.phase === 'spinning' && (
         <motion.div
           key="fs-hud"
-          initial={{ y: -50, opacity: 0 }}
+          initial={{ y: -60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
         >
-          <div className="px-4 py-2 rounded-b-xl flex items-center gap-4"
-            style={{
-              background: 'linear-gradient(180deg, hsl(280 60% 20% / 0.95), hsl(280 40% 12% / 0.95))',
-              border: '1px solid hsl(280 80% 60% / 0.4)',
-              borderTop: 'none',
-              boxShadow: '0 4px 20px hsl(280 80% 60% / 0.3)',
-            }}>
-            <div className="text-center">
-              <div className="text-[9px] uppercase tracking-wider text-purple-300/70">Free Spins</div>
-              <motion.div
-                key={freeSpin.remainingSpins}
-                initial={{ scale: 1.3 }}
-                animate={{ scale: 1 }}
-                className="font-display font-black text-lg"
-                style={{
-                  background: 'linear-gradient(135deg, #e9d5ff, #a855f7)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}>
-                {freeSpin.remainingSpins}/{freeSpin.totalSpins}
-              </motion.div>
-            </div>
-            <div className="w-px h-8 bg-purple-500/30" />
-            <div className="text-center">
-              <div className="text-[9px] uppercase tracking-wider text-yellow-300/70">Multiplier</div>
-              <motion.div
-                key={freeSpin.multiplier}
-                initial={{ scale: 1.5 }}
-                animate={{ scale: 1 }}
-                className="font-display font-black text-lg text-yellow-300"
-                style={{ textShadow: '0 0 10px hsl(38 92% 55% / 0.6)' }}>
-                x{freeSpin.multiplier}
-              </motion.div>
-            </div>
-            <div className="w-px h-8 bg-purple-500/30" />
-            <div className="text-center">
-              <div className="text-[9px] uppercase tracking-wider text-green-300/70">Win</div>
-              <div className="font-bold text-sm text-green-300">
-                ${freeSpin.totalWin.toFixed(2)}
+          {/* Pagoda-style header */}
+          <div className="relative">
+            {/* Pagoda roof */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 -top-2"
+              style={{
+                width: '110%',
+                height: 14,
+                background: `linear-gradient(180deg, ${GOLD}, hsl(38 70% 35%))`,
+                clipPath: 'polygon(0% 100%, 8% 0%, 92% 0%, 100% 100%)',
+                boxShadow: `0 2px 8px hsl(0 80% 10% / 0.6)`,
+              }}
+            />
+            <div
+              className="px-5 pt-3 pb-2 rounded-b-2xl flex items-center gap-4 relative"
+              style={{
+                background: `linear-gradient(180deg, ${RED_RICH}, ${RED_DEEP})`,
+                border: `2px solid ${GOLD}`,
+                borderTop: 'none',
+                boxShadow: `0 6px 20px hsl(0 80% 10% / 0.6), 0 0 18px ${GOLD}44`,
+              }}
+            >
+              <div className="text-center">
+                <div className="text-[9px] uppercase tracking-wider" style={{ color: GOLD_LIGHT }}>
+                  免費 Spins
+                </div>
+                <motion.div
+                  key={freeSpin.remainingSpins}
+                  initial={{ scale: 1.4 }}
+                  animate={{ scale: 1 }}
+                  className="font-display font-black text-lg"
+                  style={{ color: GOLD_LIGHT, textShadow: `0 0 8px ${GOLD}` }}
+                >
+                  {freeSpin.remainingSpins}/{freeSpin.totalSpins}
+                </motion.div>
+              </div>
+              <div className="w-px h-9" style={{ background: `${GOLD}66` }} />
+              <div className="text-center">
+                <div className="text-[9px] uppercase tracking-wider" style={{ color: GOLD_LIGHT }}>
+                  倍數 Multi
+                </div>
+                <motion.div
+                  key={freeSpin.multiplier}
+                  initial={{ scale: 1.6 }}
+                  animate={{ scale: 1 }}
+                  className="font-display font-black text-lg"
+                  style={{ color: GOLD_LIGHT, textShadow: `0 0 10px ${GOLD}` }}
+                >
+                  x{freeSpin.multiplier}
+                </motion.div>
+              </div>
+              <div className="w-px h-9" style={{ background: `${GOLD}66` }} />
+              <div className="text-center">
+                <div className="text-[9px] uppercase tracking-wider" style={{ color: GOLD_LIGHT }}>
+                  贏 Win
+                </div>
+                <div className="font-bold text-sm" style={{ color: GOLD_LIGHT }}>
+                  ${freeSpin.totalWin.toFixed(2)}
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
       )}
 
-      {/* Summary Screen */}
+      {/* ============ SUMMARY ============ */}
       {freeSpin.phase === 'summary' && (
         <motion.div
           key="fs-summary"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center px-6 overflow-hidden"
         >
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.9 }}
-            className="absolute inset-0 bg-black"
+            animate={{ opacity: 0.92 }}
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse at center, ${RED_RICH} 0%, ${RED_DEEP} 55%, hsl(0 80% 6%) 100%)`,
+            }}
           />
 
-          {/* Coin rain */}
-          {Array.from({ length: 30 }, (_, i) => (
+          {/* Gold coin rain (with 元 character) */}
+          {Array.from({ length: 24 }, (_, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute flex items-center justify-center text-[10px] font-bold rounded-full"
               style={{
-                background: 'linear-gradient(135deg, #fde047, #f59e0b)',
-                boxShadow: '0 0 6px hsl(38 92% 55% / 0.6)',
+                width: 18,
+                height: 18,
+                background: `radial-gradient(circle, ${GOLD_LIGHT}, ${GOLD} 70%, hsl(38 70% 35%))`,
+                boxShadow: `0 0 8px ${GOLD}`,
+                color: 'hsl(0 80% 20%)',
                 left: `${Math.random() * 100}%`,
               }}
-              initial={{ y: -20, opacity: 0 }}
-              animate={{
-                y: ['0vh', '100vh'],
-                opacity: [0, 1, 1, 0],
-                rotate: [0, 360],
-              }}
+              initial={{ y: -30, opacity: 0 }}
+              animate={{ y: ['0vh', '110vh'], opacity: [0, 1, 1, 0], rotate: [0, 540] }}
               transition={{
-                duration: 2 + Math.random() * 2,
+                duration: 2.5 + Math.random() * 2,
                 delay: Math.random() * 2,
                 repeat: Infinity,
                 ease: 'linear',
               }}
-            />
+            >
+              元
+            </motion.div>
           ))}
 
-          <div className="relative z-10 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+          {/* Scroll card */}
+          <motion.div
+            initial={{ scale: 0.6, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+            className="relative z-10 w-full max-w-sm"
+          >
+            {/* Top scroll roller */}
+            <div
+              className="h-3 rounded-full mx-1"
+              style={{
+                background: `linear-gradient(180deg, hsl(20 50% 35%), hsl(20 60% 22%))`,
+                boxShadow: `0 2px 4px hsl(0 0% 0% / 0.5), inset 0 1px 0 ${GOLD}66`,
+              }}
+            />
+            <div
+              className="px-6 py-7 text-center relative"
+              style={{
+                background: `linear-gradient(180deg, ${PAPER}, hsl(38 50% 82%))`,
+                borderLeft: `3px solid hsl(20 60% 30%)`,
+                borderRight: `3px solid hsl(20 60% 30%)`,
+                boxShadow: `inset 0 0 30px hsl(38 50% 70% / 0.6)`,
+              }}
             >
-              <div className="font-display text-3xl sm:text-4xl font-black text-purple-300 mb-4"
-                style={{ textShadow: '0 0 15px hsl(280 80% 60% / 0.5)' }}>
-                FREE SPINS COMPLETE!
-              </div>
-            </motion.div>
+              {/* Decorative corner brackets */}
+              <div className="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2" style={{ borderColor: RED_RICH }} />
+              <div className="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2" style={{ borderColor: RED_RICH }} />
+              <div className="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2" style={{ borderColor: RED_RICH }} />
+              <div className="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2" style={{ borderColor: RED_RICH }} />
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <div className="text-sm text-muted-foreground uppercase tracking-wider mb-2">Total Win</div>
-              <div className="font-display text-5xl sm:text-6xl font-black"
+              <div
+                className="font-display text-3xl font-black mb-1"
+                style={{ color: RED_RICH, letterSpacing: '0.15em' }}
+              >
+                恭 喜
+              </div>
+              <div
+                className="font-display text-sm font-bold uppercase tracking-[0.3em] mb-4"
+                style={{ color: 'hsl(20 60% 25%)' }}
+              >
+                Congratulations
+              </div>
+
+              <div
+                className="mx-auto w-16 h-px mb-4"
+                style={{ background: `linear-gradient(90deg, transparent, ${RED_RICH}, transparent)` }}
+              />
+
+              <div className="text-xs uppercase tracking-wider mb-1" style={{ color: 'hsl(20 50% 30%)' }}>
+                Total Win · 總贏
+              </div>
+              <motion.div
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 220, damping: 12, delay: 0.4 }}
+                className="font-display text-5xl font-black my-2"
                 style={{
-                  background: 'linear-gradient(135deg, #fde047, #f59e0b, #fde047)',
+                  background: `linear-gradient(180deg, ${GOLD_LIGHT}, ${GOLD} 50%, hsl(38 80% 40%))`,
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 0 20px hsl(38 92% 55% / 0.8))',
-                }}>
+                  filter: `drop-shadow(0 2px 0 hsl(0 80% 18%)) drop-shadow(0 0 12px ${GOLD})`,
+                }}
+              >
                 ${freeSpin.totalWin.toFixed(2)}
-              </div>
-            </motion.div>
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="mt-4 text-xs text-yellow-300/60"
-            >
-              Max multiplier reached: x{freeSpin.multiplier}
-            </motion.div>
-          </div>
+              <div
+                className="inline-block mt-3 px-4 py-1 rounded-md"
+                style={{
+                  background: `linear-gradient(180deg, ${RED_RICH}, ${RED_DEEP})`,
+                  border: `1px solid ${GOLD}`,
+                }}
+              >
+                <span className="text-xs font-bold" style={{ color: GOLD_LIGHT }}>
+                  Max Multiplier · x{freeSpin.multiplier}
+                </span>
+              </div>
+
+              <div className="mt-4 text-[10px] tracking-[0.3em]" style={{ color: 'hsl(20 50% 35%)' }}>
+                — 大 吉 大 利 —
+              </div>
+            </div>
+            {/* Bottom scroll roller */}
+            <div
+              className="h-3 rounded-full mx-1"
+              style={{
+                background: `linear-gradient(180deg, hsl(20 60% 22%), hsl(20 50% 35%))`,
+                boxShadow: `0 -2px 4px hsl(0 0% 0% / 0.5), inset 0 -1px 0 ${GOLD}66`,
+              }}
+            />
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
