@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FreeSpinState } from '../game/types';
+import scrollBg from '../assets/scroll-bg.png';
 
 interface FreeSpinOverlayProps {
   freeSpin: FreeSpinState;
