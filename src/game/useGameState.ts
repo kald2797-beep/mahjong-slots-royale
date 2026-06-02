@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { GameState, Grid, WinCluster, FreeSpinState, SymbolId } from './types';
-import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds } from './engine';
+import { createGrid, findClusters, removeWinning, getMultiplier, calculateWin, countScatters, getFreeSpinCount, getRetriggerSpins, transformToGoldenWilds, revealMarkedWilds } from './engine';
 import { buildForcedGrid, DevForceMode } from './devForce';
 import { useAudio } from './useAudio';
 
@@ -45,6 +45,15 @@ export function useGameState() {
   const runCascadeLoop = useCallback(async (
     grid: Grid, bet: number, cascadeCount: number, accumulatedWin: number, isFreeSpins: boolean, fsMultiplier: number
   ) => {
+    // Reveal any pre-marked "golden" symbols — flip them to wilds before win evaluation
+    const revealed = revealMarkedWilds(grid);
+    if (revealed.transformed) {
+      setState(s => ({ ...s, grid: revealed.grid }));
+      play('bigWin');
+      await delay(550);
+    }
+    grid = revealed.grid;
+
     const clusters = findClusters(grid);
 
     if (clusters.length === 0) {

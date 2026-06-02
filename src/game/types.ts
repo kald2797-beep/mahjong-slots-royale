@@ -33,6 +33,7 @@ export type CellState = {
   key: number;
   fromRow?: number;
   isGoldenWild?: boolean; // transformed to wild after win
+  willBeWild?: boolean;   // marked at spawn; will transform into wild before win check
 };
 
 export type Grid = CellState[][];

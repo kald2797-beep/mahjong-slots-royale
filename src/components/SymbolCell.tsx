@@ -110,6 +110,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
 export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop, isScatterCelebrate }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
+  const isWildCandidate = !!cell.willBeWild;
 
   // Hidden cell — render nothing (completely invisible, no placeholder)
   if (isHidden) {
@@ -184,7 +185,43 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
         />
       )}
 
-      {/* Explosion particles */}
+      {/* Golden wild CANDIDATE shimmer — symbol marked to transform into a wild */}
+      {isWildCandidate && (
+        <>
+          <motion.div
+            className="absolute inset-[-3px] rounded-xl pointer-events-none z-30"
+            animate={{
+              opacity: [0.55, 1, 0.55],
+              scale: [1, 1.04, 1],
+            }}
+            transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              border: '2px dashed hsl(48 100% 65%)',
+              boxShadow: '0 0 14px hsl(48 100% 65% / 0.75), 0 0 28px hsl(38 92% 55% / 0.35), inset 0 0 12px hsl(48 100% 65% / 0.35)',
+              background: 'radial-gradient(circle at center, hsl(48 100% 65% / 0.18), transparent 70%)',
+            }}
+          />
+          {/* sparkle dots */}
+          {[0, 1, 2].map(i => (
+            <motion.div
+              key={`spark-${i}`}
+              className="absolute rounded-full pointer-events-none z-30"
+              style={{
+                width: 4,
+                height: 4,
+                background: 'hsl(48 100% 80%)',
+                boxShadow: '0 0 6px hsl(48 100% 70%)',
+                top: `${20 + i * 25}%`,
+                left: `${15 + i * 30}%`,
+              }}
+              animate={{ opacity: [0, 1, 0], scale: [0.5, 1.4, 0.5] }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.25, ease: 'easeInOut' }}
+            />
+          ))}
+        </>
+      )}
+
+
       {isExplodingWin && (
         <ExplosionParticles colIndex={colIndex} rowIndex={rowIndex} />
       )}
@@ -199,7 +236,9 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
           rotate: isExplodingWin ? 180 : 0,
           filter: isWinning && !isExploding
             ? 'brightness(1.3) drop-shadow(0 0 6px hsl(38 92% 55% / 0.6))'
-            : 'brightness(1)',
+            : isWildCandidate
+              ? 'brightness(1.15) sepia(0.6) saturate(2.2) hue-rotate(-10deg) drop-shadow(0 0 8px hsl(48 100% 65% / 0.85))'
+              : 'brightness(1)',
         }}
         transition={{
           y: isTeaserDrop

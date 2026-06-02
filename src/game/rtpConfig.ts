@@ -64,7 +64,7 @@ export const DEFAULT_RTP_CONFIG: RtpConfig = {
     { count: 3, spins: 5 },
     { count: 2, spins: 3 },
   ],
-  minClusterSize: 5,
+  minClusterSize: 3,
 };
 
 // Live config (mutable) — change at runtime via setRtpConfig()
