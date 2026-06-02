@@ -21,11 +21,30 @@ export function createGrid(isFreeSpins = false): Grid {
   for (let col = 0; col < COLS; col++) {
     const column: CellState[] = [];
     for (let row = 0; row < ROWS; row++) {
-      column.push({ symbolId: randomSymbol(isFreeSpins), key: nextKey() });
+      const symbolId = randomSymbol(isFreeSpins);
+      // Mark some non-special symbols as "will be wild" — golden symbols that flip to wild before evaluation.
+      // Higher chance during free spins. Never on scatters or already-wilds.
+      const canBeWild = symbolId !== 8 && symbolId !== 9;
+      const wildChance = isFreeSpins ? 0.05 : 0.025;
+      const willBeWild = canBeWild && Math.random() < wildChance;
+      column.push({ symbolId, key: nextKey(), ...(willBeWild ? { willBeWild: true } : {}) });
     }
     grid.push(column);
   }
   return grid;
+}
+
+// Flip every cell marked `willBeWild` into a golden wild (symbolId = 9).
+export function revealMarkedWilds(grid: Grid): { grid: Grid; transformed: boolean } {
+  let transformed = false;
+  const newGrid = grid.map(col => col.map(cell => {
+    if (cell.willBeWild) {
+      transformed = true;
+      return { ...cell, symbolId: 9 as SymbolId, isGoldenWild: true, willBeWild: false };
+    }
+    return cell;
+  }));
+  return { grid: newGrid, transformed };
 }
 
 export function countScatters(grid: Grid): [number, number][] {
