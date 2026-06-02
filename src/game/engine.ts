@@ -23,9 +23,9 @@ export function createGrid(isFreeSpins = false): Grid {
     for (let row = 0; row < ROWS; row++) {
       const symbolId = randomSymbol(isFreeSpins);
       // Mark some non-special symbols as "will be wild" — golden symbols that flip to wild before evaluation.
-      // Higher chance during free spins. Never on scatters or already-wilds.
+      // Only during free spins. Never on scatters or already-wilds.
       const canBeWild = symbolId !== 8 && symbolId !== 9;
-      const wildChance = isFreeSpins ? 0.05 : 0.025;
+      const wildChance = isFreeSpins ? 0.05 : 0;
       const willBeWild = canBeWild && Math.random() < wildChance;
       column.push({ symbolId, key: nextKey(), ...(willBeWild ? { willBeWild: true } : {}) });
     }
@@ -127,7 +127,7 @@ export function removeWinning(grid: Grid, clusters: WinCluster[], isFreeSpins = 
     const newCells: CellState[] = Array.from({ length: fillCount }, (_, i) => {
       const symbolId = randomSymbol(isFreeSpins);
       const canBeWild = symbolId !== 8 && symbolId !== 9;
-      const wildChance = isFreeSpins ? 0.05 : 0.025;
+      const wildChance = isFreeSpins ? 0.05 : 0;
       const willBeWild = canBeWild && Math.random() < wildChance;
       return {
         symbolId,
