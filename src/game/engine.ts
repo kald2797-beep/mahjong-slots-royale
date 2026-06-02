@@ -59,64 +59,51 @@ export function countScatters(grid: Grid): [number, number][] {
   return positions;
 }
 
+// Left-to-right line wins.
+// For each row, walk columns starting at col 0; collect a run of cells that
+// match a "base" symbol (the first non-wild from the left), with wilds acting
+// as substitutes. A run of length >= minLineSize pays.
 export function findClusters(grid: Grid): WinCluster[] {
-  const visited = Array.from({ length: COLS }, () => Array(ROWS).fill(false));
-  const clusters: WinCluster[] = [];
+  const minLineSize = Math.max(3, Math.min(getRtpConfig().minClusterSize, 3));
+  const payouts = getRtpConfig().payouts;
+  const wins: WinCluster[] = [];
 
-  // Mark scatter positions as visited (they don't form clusters)
-  for (let col = 0; col < COLS; col++) {
-    for (let row = 0; row < ROWS; row++) {
-      if (SYMBOLS[grid[col][row].symbolId].isScatter) {
-        visited[col][row] = true;
+  for (let row = 0; row < ROWS; row++) {
+    // Determine base symbol = first non-wild, non-scatter from the left
+    let base: SymbolId | -1 = -1;
+    for (let col = 0; col < COLS; col++) {
+      const s = grid[col][row].symbolId;
+      if (SYMBOLS[s].isScatter) break;
+      if (!SYMBOLS[s].isWild) { base = s; break; }
+    }
+
+    // All wilds from the left also count: treat base as wild (id 9)
+    const positions: [number, number][] = [];
+    let runSymbol: SymbolId | -1 = base;
+    for (let col = 0; col < COLS; col++) {
+      const s = grid[col][row].symbolId;
+      if (SYMBOLS[s].isScatter) break;
+      if (runSymbol === -1) {
+        if (SYMBOLS[s].isWild) { positions.push([col, row]); runSymbol = 9 as SymbolId; continue; }
+        break;
       }
+      if (s === runSymbol || SYMBOLS[s].isWild) {
+        positions.push([col, row]);
+      } else {
+        break;
+      }
+    }
+
+    if (positions.length >= minLineSize && runSymbol !== -1 && runSymbol !== 9) {
+      wins.push({
+        positions,
+        symbolId: runSymbol,
+        payout: positions.length * payouts[runSymbol],
+      });
     }
   }
 
-  for (let col = 0; col < COLS; col++) {
-    for (let row = 0; row < ROWS; row++) {
-      if (visited[col][row]) continue;
-      const cell = grid[col][row];
-      const symbolId = cell.symbolId;
-      const isWild = SYMBOLS[symbolId].isWild;
-      
-      // Wilds don't form their own clusters, they join others
-      if (isWild) {
-        visited[col][row] = true;
-        continue;
-      }
-
-      const positions: [number, number][] = [];
-      const queue: [number, number][] = [[col, row]];
-      visited[col][row] = true;
-
-      while (queue.length > 0) {
-        const [c, r] = queue.shift()!;
-        positions.push([c, r]);
-
-        const neighbors: [number, number][] = [[c-1,r],[c+1,r],[c,r-1],[c,r+1]];
-        for (const [nc, nr] of neighbors) {
-          if (nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS && !visited[nc][nr]) {
-            const neighborSym = grid[nc][nr].symbolId;
-            if (neighborSym === symbolId || SYMBOLS[neighborSym].isWild) {
-              visited[nc][nr] = true;
-              queue.push([nc, nr]);
-            }
-          }
-        }
-      }
-
-      if (positions.length >= getRtpConfig().minClusterSize) {
-        const payouts = getRtpConfig().payouts;
-        clusters.push({
-          positions,
-          symbolId,
-          payout: positions.length * payouts[symbolId],
-        });
-      }
-    }
-  }
-
-  return clusters;
+  return wins;
 }
 
 export function removeWinning(grid: Grid, clusters: WinCluster[], isFreeSpins = false): Grid {
