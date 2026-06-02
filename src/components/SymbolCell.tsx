@@ -110,6 +110,7 @@ function ExplosionParticles({ colIndex, rowIndex }: { colIndex: number; rowIndex
 export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascading, colIndex, rowIndex, isScatterHighlight, isGoldenWild, isTeaserDrop, isScatterCelebrate }: SymbolCellProps) {
   const symbol = SYMBOLS[cell.symbolId];
   const isHidden = (cell as any)._hidden === true;
+  const isWildCandidate = !!cell.willBeWild;
 
   // Hidden cell — render nothing (completely invisible, no placeholder)
   if (isHidden) {
