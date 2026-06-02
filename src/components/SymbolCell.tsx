@@ -236,7 +236,9 @@ export function SymbolCell({ cell, isWinning, isExploding, isClearing, isCascadi
           rotate: isExplodingWin ? 180 : 0,
           filter: isWinning && !isExploding
             ? 'brightness(1.3) drop-shadow(0 0 6px hsl(38 92% 55% / 0.6))'
-            : 'brightness(1)',
+            : isWildCandidate
+              ? 'brightness(1.15) sepia(0.6) saturate(2.2) hue-rotate(-10deg) drop-shadow(0 0 8px hsl(48 100% 65% / 0.85))'
+              : 'brightness(1)',
         }}
         transition={{
           y: isTeaserDrop
