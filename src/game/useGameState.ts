@@ -45,6 +45,15 @@ export function useGameState() {
   const runCascadeLoop = useCallback(async (
     grid: Grid, bet: number, cascadeCount: number, accumulatedWin: number, isFreeSpins: boolean, fsMultiplier: number
   ) => {
+    // Reveal any pre-marked "golden" symbols — flip them to wilds before win evaluation
+    const revealed = revealMarkedWilds(grid);
+    if (revealed.transformed) {
+      setState(s => ({ ...s, grid: revealed.grid }));
+      play('bigWin');
+      await delay(550);
+    }
+    grid = revealed.grid;
+
     const clusters = findClusters(grid);
 
     if (clusters.length === 0) {
