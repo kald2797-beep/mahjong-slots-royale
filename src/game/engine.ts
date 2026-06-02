@@ -124,11 +124,18 @@ export function removeWinning(grid: Grid, clusters: WinCluster[], isFreeSpins = 
       }
     }
     const fillCount = ROWS - remaining.length;
-    const newCells: CellState[] = Array.from({ length: fillCount }, (_, i) => ({
-      symbolId: randomSymbol(isFreeSpins),
-      key: nextKey(),
-      fromRow: -(fillCount - i),
-    }));
+    const newCells: CellState[] = Array.from({ length: fillCount }, (_, i) => {
+      const symbolId = randomSymbol(isFreeSpins);
+      const canBeWild = symbolId !== 8 && symbolId !== 9;
+      const wildChance = isFreeSpins ? 0.05 : 0.025;
+      const willBeWild = canBeWild && Math.random() < wildChance;
+      return {
+        symbolId,
+        key: nextKey(),
+        fromRow: -(fillCount - i),
+        ...(willBeWild ? { willBeWild: true } : {}),
+      };
+    });
     newGrid[col] = [...newCells, ...remaining];
   }
 
